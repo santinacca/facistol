@@ -67,7 +67,7 @@ void facistolValidar(BMPFileHeader* file, BMPInfoHeader* info, char* arg){
 int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p){
     char newName[255] = "NEW";
     strcat(newName, arg);
-    FILE* fo = fopen(newName, "w+");
+    FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
         exit(1);
@@ -75,15 +75,16 @@ int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p)
     int size = abs(info->height) * (info->width);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
+    int32_t height = abs(info->height);
 
-    Pixel** mat = malloc(info->height * sizeof(Pixel*));
+    Pixel** mat = malloc(height * sizeof(Pixel*));
     if(mat == NULL){
         printf("error al crear matriz\n");
         free(mat);
         fclose(fo);
         return 1;
     }
-    for(int i = 0; i < info->height; i++){
+    for(int i = 0; i < height; i++){
         mat[i] = malloc(info->width * sizeof(Pixel));
         if(mat[i] == NULL){
             printf("Error al crear cada fila entera digamos\n");
@@ -97,12 +98,12 @@ int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p)
     fseek(p, file->offset_data, SEEK_SET);
 
     if(is_top_down){
-        for(int j = 0; j < info->height; j++){
+        for(int j = 0; j < height; j++){
             fread(mat[j], sizeof(Pixel), info->width, p);
             fseek(p, padding, SEEK_CUR);
         }
     }else{
-        for(int j = info->height-1; j >= 0; j--){
+        for(int j = height-1; j >= 0; j--){
             fread(mat[j], sizeof(Pixel), info->width, p);
             fseek(p, padding, SEEK_CUR);
         }
@@ -110,7 +111,30 @@ int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p)
 
     printf("pixel tanto tiene blue: %" PRIu8 " green: %" PRIu8 " red: %" PRIu8 "\n", mat[30][90].blue, mat[30][90].green, mat[30][90].red);
 
-    for (int i = 0; i < info->height; i++) {
+    fwrite(file, sizeof(BMPFileHeader), 1, fo);
+    fwrite(info, sizeof(BMPInfoHeader), 1, fo);
+    fseek(fo, file->offset_data, SEEK_SET);
+    if(is_top_down){
+        for(int k = 0; k < height; k++){
+            fwrite(mat[k], sizeof(Pixel), info->width, fo);
+            // fwrite("0x00", sizeof("0x00"), padding, fo);
+            // for (int i = 0; i < padding; i++) fputc(0x00, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }else{
+        for(int k = height -1; k >= 0; k--){
+            fwrite(mat[k], sizeof(Pixel), info->width, fo);
+            // fwrite("0x00", sizeof("0x00"), padding, fo);
+            // for (int i = 0; i < padding; i++) fputc(0x00, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }
+
+    for (int i = 0; i < height; i++) {
         free(mat[i]);
     }
     free(mat);
