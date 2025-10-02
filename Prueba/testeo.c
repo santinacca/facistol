@@ -1,24 +1,14 @@
 #include "testeo.h"
 
 void procesarImagen(int num, char* arg[]){
-    printf("Entro a procesosar imagene\n");
-    printf("%s\n", arg[1]);
     FILE* p = fopen(arg[1], "rb");
-    printf("abrio el archivo\n");
     if(p == NULL){
         printf("error al abrir el archivo\n");
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
-    if (!file || !info) {
-        printf("Error al asignar memoria\n");
-        exit(1);
-    }
-    printf("antes de leer\n");
-    fread(file, sizeof(BMPFileHeader), 1, p);
-    fread(info, sizeof(BMPInfoHeader), 1, p);
-    printf("leyo el archivo\n");
+    facistolLeerHeader(p, file, info);
     facistolValidar(file, info, arg[1]);
     facistolInfo(file, info);
     facistolCopiar(file, info, arg[1], p);
@@ -40,6 +30,7 @@ void facistolInfo(BMPFileHeader* file, BMPInfoHeader* info){
 
 void facistolValidar(BMPFileHeader* file, BMPInfoHeader* info, char* arg){
     printf("Validando %s\n", arg);
+    printf("tipo de archivo: %" PRIu16 "\n", file->file_type);
     if(file->file_type != 0x4D42){
         printf("tipo de archivo no valido\n");
         printf("ARCHIVO INVALIDO - No se puede procesar\n");
@@ -77,22 +68,24 @@ int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p)
     int padding = (4 - (info->width * 3) % 4) % 4;
     int32_t height = abs(info->height);
 
-    Pixel** mat = malloc(height * sizeof(Pixel*));
-    if(mat == NULL){
-        printf("error al crear matriz\n");
-        free(mat);
-        fclose(fo);
-        return 1;
-    }
-    for(int i = 0; i < height; i++){
-        mat[i] = malloc(info->width * sizeof(Pixel));
-        if(mat[i] == NULL){
-            printf("Error al crear cada fila entera digamos\n");
-            free(mat);
-            fclose(fo);
-            return 1;
-        }
-    }
+    // Pixel** mat = malloc(height * sizeof(Pixel*));
+    // if(mat == NULL){
+    //     printf("error al crear matriz\n");
+    //     free(mat);
+    //     fclose(fo);
+    //     return 1;
+    // }
+    // for(int i = 0; i < height; i++){
+    //     mat[i] = malloc(info->width * sizeof(Pixel));
+    //     if(mat[i] == NULL){
+    //         printf("Error al crear cada fila entera digamos\n");
+    //         free(mat);
+    //         fclose(fo);
+    //         return 1;
+    //     }
+    // }
+
+    Pixel** mat = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
     
 
     fseek(p, file->offset_data, SEEK_SET);
@@ -134,10 +127,45 @@ int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p)
         }
     }
 
-    for (int i = 0; i < height; i++) {
-        free(mat[i]);
-    }
-    free(mat);
+    // for (int i = 0; i < height; i++) {
+    //     free(mat[i]);
+    // }
+    // free(mat);
+    facistolDestruirMatriz((void**)mat, height);
     fclose(fo);
     return 0;
+}
+// ostias
+int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info){
+    if(file == NULL || info == NULL){
+        printf("error al asignar memoria\n");
+        return 3;
+    }
+    fread(file, sizeof(BMPFileHeader), 1, p);
+    fread(info, sizeof(BMPInfoHeader), 1, p);
+}
+//jolines
+void** facistolCrearMatriz(int fil, int col, size_t elem){
+    void** m = malloc(fil*sizeof(void*));
+    if(!m){
+        printf("error al crear matriz");
+        return NULL;
+    }
+    void** ult = m + (fil-1);
+    for(void** i = m; i <= ult; i++){
+        *i = malloc(col*elem);
+        if(!*i){
+            facistolDestruirMatriz(m, i-m);
+            return NULL;
+        }
+    }
+    return m;
+}
+
+void facistolDestruirMatriz(void** m, int fil){
+    void** ult = m + (fil-1);
+    for(void** i = m; i < ult; i++){
+        free(*i);
+    }
+    free(m);
 }

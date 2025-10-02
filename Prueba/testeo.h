@@ -40,6 +40,9 @@ void procesarImagen(int num, char* arg[]);
 void facistolInfo(BMPFileHeader* file, BMPInfoHeader* info);
 void facistolValidar(BMPFileHeader* file, BMPInfoHeader* info, char* arg);
 int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p);
+int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info);
+void** facistolCrearMatriz(int fil, int col, size_t elem);
+void facistolDestruirMatriz(void** m, int fil);
 
 
 
