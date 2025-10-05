@@ -37,7 +37,7 @@ typedef struct {
     uint8_t red;
 } Pixel;
 
-
+void destruirMatriz(Pixel** m, int filas);
 int main()
 {
     FILE* file=fopen("out.bmp","rb");
@@ -129,30 +129,50 @@ int main()
     }
     */
 
-    /*for(int h=0;h<height;h++)
+    Pixel aux[width];
+    for(int h=0;h<height;h++)
     {
         for(int k=0;k<width;k++)
         {
-            image_data[h][k]=image_data[height-1-h][k]; //SE ESPEJA LA MITAD
+            aux[k]=image_data[h][k];
+            image_data[h][k]=image_data[height-1-h][k];         //INTENTO DE ESPEJAR
+            image_data[h][k]=aux[k];
         }
-    }*/
-    
-    
-   
-    for(int h=0;h<height;h++) 
-    { 
-        for(int k=0;k<width/2;k++) 
-        { 
-            image_data[h][k]=image_data[width-1-k][h]; 
-        } 
+        
     }
+    
+    
+    /*Pixel** v= (Pixel**)malloc(width*sizeof(Pixel**));
+    Pixel** ult = v + (width - 1);
+    for(Pixel** i=v;i<=ult;i++)
+    {
+        *i=malloc(height*sizeof(Pixel*));
+        if(!*i)
+        {
+            destruirMatriz(i, width);
+            exit(1);
+        }
+    }
+   
+                                                        //SE ROTA LA IMAGEN 90° A LA DERECHA
+    
+    for(int x=0;x<height;x++) 
+    { 
+        for(int y=0;y<width;y++) 
+        { 
+            
+            v[width-1-y][x]=image_data[x][y];
+        }
 
+    }*/
 
+    
 
-
+    
 
     fclose(file);
 
+    
     // Recalcular y actualizar los campos de tamaño en la cabecera
     uint32_t row_bytes = (width * 3) + padding;
     uint32_t image_data_size = row_bytes * height;
@@ -164,7 +184,7 @@ int main()
     // Actualizar la cabecera de información (BMPInfoHeader)
     info_header.image_size = image_data_size;
 
-    FILE* new_file = fopen("outrotada.bmp", "wb");
+    FILE* new_file = fopen("outespejada.bmp", "wb");
     if (!new_file)
     {
         perror("Error al crear el archivo de salida");
@@ -178,16 +198,42 @@ int main()
     for (int y = 0; y < height; y++) {
         fwrite(image_data[y], sizeof(Pixel), width, new_file);
         // Escribir el padding
+        for (int i = 0; i < padding; i++) {                         //ESCRIBIR MATRIZ NORMAL
+            fputc(0x00, new_file);
+        }
+    }
+
+    /*for (int y = 0; y < width; y++) {
+        fwrite(v[y], sizeof(Pixel), height, new_file);
+        // Escribir el padding                                         //ESCRIBIR SEGUNDA MATRIZ
         for (int i = 0; i < padding; i++) {
             fputc(0x00, new_file);
         }
     }
+    */
     fclose(new_file);
     
 
 
     Pixel** m=image_data;
-    Pixel** ult = m + ( height - 1);
+    Pixel** ultt = m + ( height - 1);
+
+    for(Pixel** i = m; i <= ultt; i++)
+    {
+        free(*i);
+    }
+    free(m);
+
+    //destruirMatriz(v,width);
+
+   
+    return 0;
+
+}
+
+void destruirMatriz(Pixel** m, int filas)
+{
+    Pixel** ult = m + (filas - 1);
 
     for(Pixel** i = m; i <= ult; i++)
     {
@@ -195,7 +241,4 @@ int main()
     }
 
     free(m);
-   
-    return 0;
-
 }
