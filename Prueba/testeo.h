@@ -39,10 +39,22 @@ typedef struct {
 void procesarImagen(int num, char* arg[]);
 void facistolInfo(BMPFileHeader* file, BMPInfoHeader* info);
 void facistolValidar(BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p);
+int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p, Pixel** mat);
 int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info);
 void** facistolCrearMatriz(int fil, int col, size_t elem);
 void facistolDestruirMatriz(void** m, int fil);
+void facistolNegativo(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+void facistolAumentarContraste(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolTonalidadRoja(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolTonalidadVerde(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolTonalidadAzul(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolGris(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+void facistolRotacion90Izquierda(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+void facistolRotacion90Derecha(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+void facistolEspejarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+void facistolEspejarVertical(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
+int facistolContraste(int pixel, int porcentaje);
+int facistolValorAumento(int pixel, int porcentaje);
 
 
 
