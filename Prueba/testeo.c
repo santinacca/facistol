@@ -6,18 +6,36 @@ void procesarImagen(int num, char* arg[]){
         printf("error al abrir el archivo\n");
         exit(1);
     }
+    FILE* p2 = fopen(arg[2], "rb");
+    if(p2 == NULL){
+        printf("Error al abrir el segundo archivo\n");
+        exit(1);
+    }
+
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    //
+    BMPFileHeader* file2 = malloc(sizeof(BMPFileHeader));
+    BMPInfoHeader* info2 = malloc(sizeof(BMPInfoHeader));
+
     facistolLeerHeader(p, file, info);
+    facistolLeerHeader(p2, file2, info2);
 
     int size = abs(info->height) * (info->width);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int32_t height = abs(info->height);
 
+    int size2 = abs(info2->height) * (info2->width);
+    int is_top_down2 = (info2->height < 0);
+    int padding2 = (4-(info2->width * 3) %4) %4;
+    int32_t height2 = abs(info2->height);
+
     Pixel** mat = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    Pixel** mat2 = (Pixel**)facistolCrearMatriz(height2, info2->width, sizeof(Pixel));
 
     fseek(p, file->offset_data, SEEK_SET);
+    fseek(p2, file2->offset_data, SEEK_SET);
 
     if(is_top_down){
         for(int j = 0; j < height; j++){
@@ -30,9 +48,24 @@ void procesarImagen(int num, char* arg[]){
             fseek(p, padding, SEEK_CUR);
         }
     }
+
+    if(is_top_down2){
+        for(int j = 0; j < height2; j++){
+            fread(mat2[j], sizeof(Pixel), info2->width, p2);
+            fseek(p2, padding2, SEEK_CUR);
+        }
+    }else{
+        for(int j = height2-1; j >= 0; j--){
+            fread(mat2[j], sizeof(Pixel), info2->width, p2);
+            fseek(p2, padding2, SEEK_CUR);
+        }
+    }
     
     facistolValidar(file, info, arg[1]);
     facistolInfo(file, info);
+
+    facistolValidar(file2, info2, arg[2]);
+    facistolInfo(file2, info2);
     //facistolCopiar(file, info, arg[1], p, mat);
     //facistolNegativo(mat, file, info, arg[1]);
     //facistolGris(mat, file, info, arg[1]);
@@ -45,7 +78,10 @@ void procesarImagen(int num, char* arg[]){
         //facistolTonalidadRoja(mat, file, info, arg[1], atoi(arg[2]));
         //facistolTonalidadVerde(mat, file, info, arg[1], atoi(arg[2]));
         //facistolTonalidadAzul(mat, file, info, arg[1], atoi(arg[2]));
-        facistolAumentarContraste(mat, file, info, arg[1], atoi(arg[2]));
+        //facistolAumentarContraste(mat, file, info, arg[1], atoi(arg[2]));
+        //facistolDisminuirContraste(mat, file, info, arg[1], atoi(arg[2]));
+        //facistolRecortar(mat, file, info, arg[1], atoi(arg[2]));
+        facistolConcatenarHorizontal(mat, file, info, arg[1], arg[2], file2, info2, mat2);
     }else{
         //facistolNegativo(mat, file, info, arg[1]);
         facistolCopiar(file, info, arg[1], p, mat);
@@ -53,8 +89,11 @@ void procesarImagen(int num, char* arg[]){
     printf("Hemos rotado\n");
     
     fclose(p);
+    fclose(p2);
     free(file);
     free(info);
+    free(file2);
+    free(info2);
 }
 
 void facistolInfo(BMPFileHeader* file, BMPInfoHeader* info){
@@ -683,12 +722,231 @@ void facistolAumentarContraste(Pixel** m, BMPFileHeader* file, BMPInfoHeader* in
     fclose(fo);
 }
 
-int facistolContraste(int pix, int por){
-    float nuevoPixel = (pix - 128)*por + 128;
+int facistolContraste(int pix, int por)
+{
+    float factor= 1.0 + ((float)por/100);
+    float nuevoPixel = (pix - 128) * factor + 128;
     int valorFinal = (int)nuevoPixel;
     if(valorFinal > 255){
         return 255;
+    }else if(valorFinal < 0){
+        return 0;
     }else{
         return valorFinal;
     }
+}
+//
+void facistolRecortar(Pixel** mat, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje){
+    char newName[255] = "cortado_";
+    strcat(newName, arg);
+    FILE* fo = fopen(newName, "wb"); // IMPORTANT
+    if (fo == NULL){
+        printf("error al abrir el nuevo archivo\n");
+        exit(1);
+    }
+    int size = abs(info->height) * (info->width);
+    int is_top_down = (info->height < 0);
+    
+    double sqArea = sqrt((size * porcentaje)/ 100.0);
+    int newDimension = (int)sqArea;
+    int32_t height = newDimension;
+    int32_t width = newDimension;
+    int padding = (4 - (width * 3) % 4) % 4;
+
+    info->image_size = (uint32_t)sqArea;
+    file->file_size = info->image_size + info->header_size;
+    info->height = height;
+    info->width = width;
+
+
+    fwrite(file, sizeof(BMPFileHeader), 1, fo);
+    fwrite(info, sizeof(BMPInfoHeader), 1, fo);
+    fseek(fo, file->offset_data, SEEK_SET);
+    if(is_top_down){
+        for(int k = 0; k < height; k++){
+            fwrite(mat[k], sizeof(Pixel), info->width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }else{
+        for(int k = height -1; k >= 0; k--){
+            fwrite(mat[k], sizeof(Pixel), info->width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }
+
+    facistolDestruirMatriz((void**)mat, height);
+    fclose(fo);
+}
+
+void facistolDisminuirContraste(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje){
+    char newName[255] = "facistol_disminuir_contraste_";
+    strcat(newName, arg);
+    FILE* fo = fopen(newName, "wb");
+    if (fo == NULL){
+        printf("error al abrir el nuevo archivo\n");
+        exit(1);
+    }
+    int size = abs(info->height) * (info->width);
+    int is_top_down = (info->height < 0);
+    int padding = (4 - (info->width * 3) % 4) % 4;
+    int32_t height = abs(info->height);
+
+    fwrite(file, sizeof(BMPFileHeader), 1, fo);
+    fwrite(info, sizeof(BMPInfoHeader), 1, fo);
+    fseek(fo, file->offset_data, SEEK_SET);
+
+    for(int h=0;h<height;h++)
+    {
+        for(int k=0;k<info->width;k++){
+            m[h][k].red = contrasteNegativo(m[h][k].red, porcentaje);
+            m[h][k].blue = contrasteNegativo(m[h][k].blue, porcentaje);  //CONTRASTE AUMENTO
+            m[h][k].green = contrasteNegativo(m[h][k].green, porcentaje);   
+        }
+    }
+
+    if(is_top_down){
+        for(int k = 0; k < height; k++){
+            fwrite(m[k], sizeof(Pixel), info->width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }else{
+        for(int k = height -1; k >= 0; k--){
+            fwrite(m[k], sizeof(Pixel), info->width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }
+
+    facistolDestruirMatriz((void**)m, height);
+    fclose(fo);
+}
+
+int contrasteNegativo(int pix, int por)
+{
+    float factor= 1.0 - ((float)por/100);
+    float nuevoPixel = (pix - 128) * factor + 128;
+    int valorFinal = (int)nuevoPixel;
+    if(valorFinal > 255){
+        return 255;
+    }else if(valorFinal < 0){
+        return 0;
+    }else{
+        return valorFinal;
+    }
+}
+//
+void facistolConcatenarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, char* arg2, BMPFileHeader* file2, BMPInfoHeader* info2, Pixel** mat2){
+    char newname[255] = "facistol_concatenacion_";
+    strcat(newname, arg);
+    strcat(newname, "_");
+    strcat(newname, arg2);
+    printf("Nuevo nombre: %s\n", newname);
+
+    FILE* fo = fopen(newname, "wb");
+    if (fo == NULL){
+        printf("error al abrir el nuevo archivo\n");
+        exit(1);
+    }
+
+    BMPFileHeader* newFile = malloc(sizeof(BMPFileHeader));
+    BMPInfoHeader* newInfo = malloc(sizeof(BMPInfoHeader));
+
+    if(file->offset_data >= file2->offset_data){
+        *newFile = *file;
+        *newInfo = *info;
+    }else{
+        *newFile = *file2;
+        *newInfo = *info2;
+    }
+
+    newInfo->width = info->width + info2->width;
+    if(abs(info->height) >= abs(info2->height)){
+        newInfo->height = info->height;
+    }else{
+        newInfo->height = info2->height;
+    }
+    printf(PRId32 "altura: %" "\n", newInfo->height );
+
+    int newSize = abs(newInfo->height) * newInfo->width;
+    int is_top_down = (newInfo->height < 0);
+
+    int32_t height = abs(newInfo->height);
+    int32_t width = newInfo->width;
+    int padding = (4 - (width * 3) % 4) % 4;
+
+    newInfo->image_size = (uint32_t)newSize;
+    newFile->file_size = newInfo->image_size + newInfo->header_size;
+
+    fwrite(newFile, sizeof(BMPFileHeader), 1, fo);
+    fwrite(newInfo, sizeof(BMPInfoHeader), 1, fo);
+    fseek(fo, newFile->offset_data, SEEK_SET);
+
+    Pixel** newMat = (Pixel**)facistolCrearMatriz(height, width, sizeof(Pixel));
+
+    for(int w = 0; w < info->width; w++){
+        for(int h = 0; h < abs(info->height); h++){
+            newMat[h][w] = m[h][w];
+        }
+    }
+
+    if(abs(info->height) >= abs(info2->height)){
+        for(int h2 = 0; h2 < abs(info2->height); h2++){
+            //for(int w2 = info->width; w2 < width; w2++){
+            for(int w2 = 0; w2 < info2->width; w2++){
+                newMat[h2][info->width + w2] = mat2[h2][w2];
+                }
+        }
+        for(int h3 = abs(info2->height); h3 < height; h3++){
+            for(int w3 = info->width; w3 < width; w3++){
+                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].red = 0;
+                newMat[h3][w3].green = 0;
+            }
+        }
+    }else{
+        for(int h3 = abs(info->height); h3 < height; h3++){
+            for(int w3 = 0; w3 < info->width; w3++){
+                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].red = 0;
+                newMat[h3][w3].green = 0;
+            }
+        }
+        for(int h2 = 0; h2 < abs(height); h2++){
+            for(int w2 = 0; w2 < info2->width; w2++){
+                newMat[h2][info->width + w2] = mat2[h2][w2];
+                }
+            }
+    }
+    printf("Terminamos de escribir la matriz\n");
+
+    printf("topdown: %d\n", is_top_down);
+    if(is_top_down){
+        for(int k = 0; k < height; k++){
+            fwrite(newMat[k], sizeof(Pixel), width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }else{
+        for(int k = height -1; k >= 0; k--){
+            fwrite(newMat[k], sizeof(Pixel), width, fo);
+            for (int i = 0; i < padding; i++) {
+                fputc(0x00, fo);
+            }
+        }
+    }
+    printf("Escribimos en el archivo\n");
+    facistolDestruirMatriz((void**)newMat, height);
+    facistolDestruirMatriz((void**)m, abs(info->height));
+    facistolDestruirMatriz((void**)mat2, abs(info2->height));
+    free(newFile);
+    free(newInfo);
+    fclose(fo);
 }
