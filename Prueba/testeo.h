@@ -55,10 +55,13 @@ void facistolRotacion90Derecha(Pixel** m, BMPFileHeader* file, BMPInfoHeader* in
 void facistolEspejarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
 void facistolEspejarVertical(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
 void facistolConcatenarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, char* arg2, BMPFileHeader* file2, BMPInfoHeader* info2, Pixel** mat2);
+void facistolConcatenarVertical(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, char* arg2, BMPFileHeader* file2, BMPInfoHeader* info2, Pixel** mat2);
 int facistolContraste(int pixel, int porcentaje);
 int contrasteNegativo(int pixel, int porcentaje);
 int facistolValorAumento(int pixel, int porcentaje);
 void facistolRecortar(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolAchicar(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+Pixel calculoPromedio(Pixel** m, int por, int h, int w, int hold, int wold);
 
 
 #endif // TESTEO_H_INCLUDED
