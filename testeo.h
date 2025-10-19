@@ -7,6 +7,10 @@
 
 #ifndef TESTEO_H_INCLUDED
 #define TESTEO_H_INCLUDED
+
+#define ESCRIBIR 10
+#define LEER 20
+
 #pragma pack(push, 1)
 typedef struct {
     uint16_t file_type;     // Debe ser 0x4D42 ('BM')
@@ -37,29 +41,33 @@ typedef struct {
 } Pixel;
 #pragma pack(pop)
 void procesarImagen(int num, char* arg[]);
-void facistolInfo(BMPFileHeader* file, BMPInfoHeader* info);
-void facistolValidar(BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-int facistolCopiar(BMPFileHeader* file, BMPInfoHeader* info, char* arg, FILE* p, Pixel** mat);
+void facistolInfo(char* arg);
+void facistolValidar(char* arg);
+int facistolCopiar(char* arg);
 int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info);
 void** facistolCrearMatriz(int fil, int col, size_t elem);
 void facistolDestruirMatriz(void** m, int fil);
-void facistolNegativo(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolAumentarContraste(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
-void facistolDisminuirContraste(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
-void facistolTonalidadRoja(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
-void facistolTonalidadVerde(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
-void facistolTonalidadAzul(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
-void facistolGris(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolRotacion90Izquierda(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolRotacion90Derecha(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolEspejarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolEspejarVertical(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg);
-void facistolConcatenarHorizontal(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, char* arg2, BMPFileHeader* file2, BMPInfoHeader* info2, Pixel** mat2);
-void facistolConcatenarVertical(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, char* arg2, BMPFileHeader* file2, BMPInfoHeader* info2, Pixel** mat2);
+void facistolNegativo(char* arg);
+void facistolComodin(char* arg);
+void facistolAumentarContraste(char* arg, int porcentaje);
+void facistolDisminuirContraste(char* arg, int porcentaje);
+void facistolTonalidadRoja(char* arg, int porcentaje);
+void facistolTonalidadVerde(char* arg, int porcentaje);
+void facistolTonalidadAzul(char* arg, int porcentaje);
+void facistolGris(char* arg);
+void facistolRotacion90Izquierda(char* arg);
+void facistolRotacion90Derecha(char* arg);
+void facistolEspejarHorizontal(char* arg);
+void facistolEspejarVertical(char* arg);
+void facistolConcatenarHorizontal(char* arg, char* arg2);
+void facistolConcatenarVertical(char* arg, char* arg2);
 int facistolContraste(int pixel, int porcentaje);
 int contrasteNegativo(int pixel, int porcentaje);
 int facistolValorAumento(int pixel, int porcentaje);
-void facistolRecortar(Pixel** m, BMPFileHeader* file, BMPInfoHeader* info, char* arg, int porcentaje);
+void facistolRecortar(char* arg, int porcentaje);
+void facistolAchicar(char* arg, int porcentaje);
+Pixel calculoPromedio(Pixel** m, float por, int h, int w, int hold, int wold, int32_t height, int32_t width);
+void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, Pixel** mat, FILE* p, int padding);
 
 
 #endif // TESTEO_H_INCLUDED
