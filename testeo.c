@@ -1,6 +1,10 @@
 #include "testeo.h"
-
-void procesarImagen(int num, char* arg[]){
+#define EXITO 0
+#define ERROR_ARG 1
+#define ERROR_ARCH 2
+#define ERROR_MEM 3
+#define BMP_INVALIDO 4
+int procesarImagen(int num, char* arg[]){
     facistolValidar(arg[1]);
     facistolInfo(arg[1]);
 
@@ -26,30 +30,32 @@ void procesarImagen(int num, char* arg[]){
         facistolComodin(arg[1]);
     }
     printf("Hemos rotado\n");
+    
 }
 
-void facistolInfo(char* arg){
+int facistolInfo(char* arg){
     FILE* p = fopen(arg, "rb");
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
     facistolLeerHeader(p, file, info);
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
-    printf("Entroa info imagen\n");
+    printf("Archivo: %s\n",arg);
     printf("Tamanio de archivo: %" PRIu32 "\n", file->file_size);
     printf("Dimension de imagen: %" PRId32 "x %" PRId32"\n", info->width, info->height);
     printf("Profundida de color: %" PRIu16 "\n", info->bit_count);
     printf("Compresion: No comprimido\n");
     printf("Offset de datos: %" PRIu32"\n", file->offset_data);
-    printf("tamanio de la imgaen: %" PRIu32"\n", info->image_size);
+    printf("Tamanio de la imgaen: %" PRIu32"\n", info->image_size);
     fclose(p);
     free(file);
     free(info);
 }
 
-void facistolValidar(char* arg){
+int facistolValidar(char* arg){
     FILE* p = fopen(arg, "rb");
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
@@ -57,8 +63,9 @@ void facistolValidar(char* arg){
     printf("Validando %s\n", arg);
     printf("tipo de archivo: %" PRIu16 "\n", file->file_type);
     if(file->file_type != 0x4D42){
-        printf("tipo de archivo no valido\n");
+        printf("Tipo de archivo no valido\n");
         printf("ARCHIVO INVALIDO - No se puede procesar\n");
+        return BMP_INVALIDO;
         exit(1);
     }else{
         printf("Signature BMP valido\n");
@@ -71,7 +78,7 @@ void facistolValidar(char* arg){
         printf("Profundidad de 24 bits confirmada\n");
     }
     if(info->compression != 0){
-        printf("archivo comprimido\n");
+        printf("Archivo comprimido\n");
         printf("ARCHIVO INVALIDO - No se puede procesar\n");
         exit(1);
     }else{
@@ -81,12 +88,47 @@ void facistolValidar(char* arg){
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 //joder
+void facistolHelp()
+{
+        printf("BMPMANIPULEITOR - Manipulador de imágenes BMP 24 bits\n");
+        printf("GRUPO: FACISTOL\n");
+        printf("Integrantes:\n");
+        printf("1. 47170837 - NACCA, Santino\n");
+        printf("2. 45072269 - ZAMBELLA, Lautaro\n");
+        printf("Uso: bmpmanipuleitor.exe [OPCIONES]\n");
+        printf("EJEMPLOS:\n");
+        printf("bmpmanipuleitor.exe --negativo foto.bmp\n");
+        printf("bmpmanipuleitor.exe --info imagen.bmp --validar\n");
+        printf("bmpmanipuleitor.exe foto.bmp --verbose --escala-de-grises --aumentar-contraste=25\n");
+        printf("FILTROS:\n");
+        printf("--info <Se informan las cualidades de la imagen>\n");
+        printf("-validar- <Se valida la imagen>\n");
+        printf("--negativo <A la imagen se le aplica un filtro negativo>\n");
+        printf("--comodin <A la imagen se le aplica un filtro sepia>\n");
+        printf("--aumentar-contraste=X <A la imagen se le aumenta el contraste un X porciento>\n");
+        printf("--disminuir-contraste=X <A la imagen se le disminuye el contraste un X porciento>\n");
+        printf("--tonalidad-roja=X <A la imagen se le aplica un filtro de tonalidad roja un X porciento>\n");
+        printf("--tonalidad-azul=X <A la imagen se le aplica un filtro de tonalidad azul un X porciento>\n");
+        printf("--tonalidad-verde=X <A la imagen se le aplica un filtro de tonalidad verde un X porciento>\n");
+        printf("--escala-de-grises <A la imagen se le aplica un filtro gris>\n");
+        printf("--rotar-derecha <A la imagen se la rota a la derecha 90 grados>\n");
+        printf("--rotar-izquierda <A la imagen se la rota a la izquierda 90 grados>\n");
+        printf("--espejar-horizontal <A la imagen se la espeja horizontalmente>\n");
+        printf("--espejar-vertical <A la imagen se la espeja verticalmente>\n");
+        printf("--concatenar-vertical <A la imagen se la concatena con otra imagen verticalmente>\n");
+        printf("--concatenar-vertical <A la imagen se la concatena con otra imagen verticalmente>\n");
+        printf("--recortar=X <A la imagen se la recorta un X porciento>\n");
+        printf("--achicar=X <A la imagen se la achica un X porciento>\n");       
+}
+//
 int facistolCopiar(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_copia_";
@@ -94,6 +136,7 @@ int facistolCopiar(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -127,8 +170,8 @@ int facistolCopiar(char* arg){
 // ostias
 int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info){
     if(file == NULL || info == NULL){
-        printf("error al asignar memoria\n");
-        return 3;
+        printf("Error al asignar memoria\n");
+        return ERROR_MEM;
     }
     fread(file, sizeof(BMPFileHeader), 1, p);
     fread(info, sizeof(BMPInfoHeader), 1, p);
@@ -137,7 +180,7 @@ int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info){
 void** facistolCrearMatriz(int fil, int col, size_t elem){
     void** m = malloc(fil*sizeof(void*));
     if(!m){
-        printf("error al crear matriz");
+        printf("Error al crear matriz");
         return NULL;
     }
     void** ult = m + (fil-1);
@@ -160,10 +203,11 @@ void facistolDestruirMatriz(void** m, int fil){
 }
 
 //jofrder
-void facistolNegativo(char* arg){
+int facistolNegativo(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_negativo_";
@@ -171,6 +215,7 @@ void facistolNegativo(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -183,6 +228,11 @@ void facistolNegativo(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** mat = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(mat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, mat, p, padding);
 
@@ -206,12 +256,14 @@ void facistolNegativo(char* arg){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolGris(char* arg){
+int facistolGris(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_gris_";
@@ -219,6 +271,7 @@ void facistolGris(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -231,6 +284,10 @@ void facistolGris(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -256,12 +313,14 @@ void facistolGris(char* arg){
     free(info);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolRotacion90Izquierda(char* arg){
+int facistolRotacion90Izquierda(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_90Grados_Izquierda_";
@@ -269,6 +328,7 @@ void facistolRotacion90Izquierda(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -281,6 +341,10 @@ void facistolRotacion90Izquierda(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -296,6 +360,10 @@ void facistolRotacion90Izquierda(char* arg){
     fwrite(&newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
     Pixel** newMat = (Pixel**)facistolCrearMatriz(info->width, height, sizeof(Pixel));
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
     
     for(int x=0;x<height;x++) 
     { 
@@ -318,12 +386,14 @@ void facistolRotacion90Izquierda(char* arg){
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 
-void facistolRotacion90Derecha(char* arg){
+int facistolRotacion90Derecha(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_90Grados_Derecha_";
@@ -331,6 +401,7 @@ void facistolRotacion90Derecha(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -343,6 +414,10 @@ void facistolRotacion90Derecha(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -358,6 +433,10 @@ void facistolRotacion90Derecha(char* arg){
     fwrite(&newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
     Pixel** newMat = (Pixel**)facistolCrearMatriz(info->width, height, sizeof(Pixel));
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
     
     for(int x=0;x<height;x++) 
     { 
@@ -380,13 +459,15 @@ void facistolRotacion90Derecha(char* arg){
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 //
 
-void facistolEspejarHorizontal(char* arg){
+int facistolEspejarHorizontal(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_espejado_horizontal_";
@@ -394,6 +475,7 @@ void facistolEspejarHorizontal(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -406,6 +488,10 @@ void facistolEspejarHorizontal(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -436,12 +522,14 @@ void facistolEspejarHorizontal(char* arg){
     free(vec);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolEspejarVertical(char* arg){
+int facistolEspejarVertical(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_espejado_vertical_";
@@ -449,6 +537,7 @@ void facistolEspejarVertical(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -461,6 +550,10 @@ void facistolEspejarVertical(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -491,12 +584,14 @@ void facistolEspejarVertical(char* arg){
     free(vec);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolTonalidadRoja(char* arg, int porcentaje){
+int facistolTonalidadRoja(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_roja";
@@ -504,6 +599,7 @@ void facistolTonalidadRoja(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -516,6 +612,10 @@ void facistolTonalidadRoja(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -537,6 +637,7 @@ void facistolTonalidadRoja(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 int facistolValorAumento(int pix, int porcentaje){
@@ -549,10 +650,11 @@ int facistolValorAumento(int pix, int porcentaje){
     }
 }
 
-void facistolTonalidadVerde(char* arg, int porcentaje){
+int facistolTonalidadVerde(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_verde";
@@ -560,6 +662,7 @@ void facistolTonalidadVerde(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -572,6 +675,10 @@ void facistolTonalidadVerde(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -593,13 +700,15 @@ void facistolTonalidadVerde(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 
-void facistolTonalidadAzul(char* arg, int porcentaje){
+int facistolTonalidadAzul(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_azul";
@@ -607,6 +716,7 @@ void facistolTonalidadAzul(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -619,6 +729,10 @@ void facistolTonalidadAzul(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -640,13 +754,15 @@ void facistolTonalidadAzul(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 //
 
-void facistolAumentarContraste(char* arg, int porcentaje){
+int facistolAumentarContraste(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_aumentar_contraste_";
@@ -654,6 +770,7 @@ void facistolAumentarContraste(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -666,6 +783,10 @@ void facistolAumentarContraste(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -689,6 +810,7 @@ void facistolAumentarContraste(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 int facistolContraste(int pix, int por)
@@ -705,10 +827,11 @@ int facistolContraste(int pix, int por)
     }
 }
 //
-void facistolRecortar(char* arg, int porcentaje){
+int facistolRecortar(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_recortado_";
@@ -716,6 +839,7 @@ void facistolRecortar(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -727,6 +851,10 @@ void facistolRecortar(char* arg, int porcentaje){
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -754,10 +882,11 @@ void facistolRecortar(char* arg, int porcentaje){
     fclose(fo);
 }
 
-void facistolDisminuirContraste(char* arg, int porcentaje){
+int facistolDisminuirContraste(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_disminuir_contraste_";
@@ -765,6 +894,7 @@ void facistolDisminuirContraste(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -777,6 +907,10 @@ void facistolDisminuirContraste(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -800,6 +934,7 @@ void facistolDisminuirContraste(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 int contrasteNegativo(int pix, int por)
@@ -816,15 +951,17 @@ int contrasteNegativo(int pix, int por)
     }
 }
 //
-void facistolConcatenarHorizontal(char* arg, char* arg2){
+int facistolConcatenarHorizontal(char* arg, char* arg2){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     FILE* p2 = fopen(arg2, "rb");
     if(p2 == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newname[255] = "facistol_concatenacion_horizontal_";
@@ -836,6 +973,7 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -891,12 +1029,24 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
     fseek(fo, newFile->offset_data, SEEK_SET);
 
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newHeight, newWidth, sizeof(Pixel));
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
 
     Pixel** m = (Pixel**)facistolCrearMatriz(abs(info->height), info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, abs(info->height), info->width, m, p, padding);
 
     Pixel** m2 = (Pixel**)facistolCrearMatriz(abs(info2->height), info2->width, sizeof(Pixel));
+    if(m2==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p2, file2->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down2, abs(info2->height), info2->width, m2, p2, padding2);
 
@@ -948,17 +1098,20 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
     free(file2);
     free(info2);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolConcatenarVertical(char* arg, char* arg2){
+int facistolConcatenarVertical(char* arg, char* arg2){
         FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     FILE* p2 = fopen(arg2, "rb");
     if(p2 == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newname[255] = "facistol_concatenacion_vertical_";
@@ -970,6 +1123,7 @@ void facistolConcatenarVertical(char* arg, char* arg2){
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -1025,12 +1179,24 @@ void facistolConcatenarVertical(char* arg, char* arg2){
     fseek(fo, newFile->offset_data, SEEK_SET);
 
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newHeight, newWidth, sizeof(Pixel));
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
 
     Pixel** m = (Pixel**)facistolCrearMatriz(abs(info->height), info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, abs(info->height), info->width, m, p, padding);
 
     Pixel** m2 = (Pixel**)facistolCrearMatriz(abs(info2->height), info2->width, sizeof(Pixel));
+    if(m2==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p2, file2->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down2, abs(info2->height), info2->width, m2, p2, padding2);
 
@@ -1089,9 +1255,10 @@ void facistolConcatenarVertical(char* arg, char* arg2){
     free(file2);
     free(info2);
     fclose(fo);
+    return EXITO;
 }
 //
-void facistolAchicar(char* arg, int porcentaje){
+int facistolAchicar(char* arg, int porcentaje){
     if(porcentaje < 1 || porcentaje > 100){
         printf("Porcentaje no valido\n");
         porcentaje = 100;  // Valor por defecto
@@ -1100,6 +1267,7 @@ void facistolAchicar(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "achicado_";
@@ -1107,6 +1275,7 @@ void facistolAchicar(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb");  // Modo binario
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -1119,6 +1288,10 @@ void facistolAchicar(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -1130,6 +1303,10 @@ void facistolAchicar(char* arg, int porcentaje){
     int32_t newwidth = (int32_t)(origenW / factor);   // Ancho nuevo
 
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newheight, newwidth, sizeof(Pixel));
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
 
     for(int h = 0; h < newheight; h++){
         for(int w = 0; w < newwidth; w++){
@@ -1163,6 +1340,7 @@ void facistolAchicar(char* arg, int porcentaje){
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 
@@ -1203,10 +1381,11 @@ Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, i
         return devolver;
     }
 
-void facistolComodin(char* arg){
+int facistolComodin(char* arg){
         FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_comodin_";
@@ -1214,6 +1393,7 @@ void facistolComodin(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -1226,6 +1406,10 @@ void facistolComodin(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -1263,6 +1447,7 @@ void facistolComodin(char* arg){
     free(info);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
 void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, Pixel** mat, FILE* p, int padding){
@@ -1295,3 +1480,4 @@ void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, 
         }
     }
 }
+
