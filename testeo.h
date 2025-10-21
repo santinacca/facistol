@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdbool.h>
 
 #ifndef TESTEO_H_INCLUDED
 #define TESTEO_H_INCLUDED
@@ -48,25 +49,25 @@ int facistolCopiar(char* arg);
 int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info);
 void** facistolCrearMatriz(int fil, int col, size_t elem);
 void facistolDestruirMatriz(void** m, int fil);
-int facistolNegativo(char* arg);
-int facistolComodin(char* arg);
-int facistolAumentarContraste(char* arg, int porcentaje);
-int facistolDisminuirContraste(char* arg, int porcentaje);
-int facistolTonalidadRoja(char* arg, int porcentaje);
-int facistolTonalidadVerde(char* arg, int porcentaje);
-int facistolTonalidadAzul(char* arg, int porcentaje);
-int facistolGris(char* arg);
-int facistolRotacion90Izquierda(char* arg);
-int facistolRotacion90Derecha(char* arg);
-int facistolEspejarHorizontal(char* arg);
-int facistolEspejarVertical(char* arg);
-int facistolConcatenarHorizontal(char* arg, char* arg2);
-int facistolConcatenarVertical(char* arg, char* arg2);
-int facistolContraste(int pixel, int porcentaje);
+int facistolNegativo(char* arg,bool verb,bool* segundoverb);
+int facistolComodin(char* arg,bool verb,bool* segundoverb);
+int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolGris(char* arg,bool verb,bool* segundoverb);
+int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb);
+int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb);
+int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb);
+int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb);
+int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundoverb);
+int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb);
+int contrastePositivo(int pixel, int porcentaje);
 int contrasteNegativo(int pixel, int porcentaje);
-int facistolValorAumento(int pixel, int porcentaje);
-int facistolRecortar(char* arg, int porcentaje);
-int facistolAchicar(char* arg, int porcentaje);
+int valorAumento(int pixel, int porcentaje);
+int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb);
+int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb);
 Pixel calculoPromedio(Pixel** m, float por, int h, int w, int hold, int wold, int32_t height, int32_t width);
 void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, Pixel** mat, FILE* p, int padding);
 

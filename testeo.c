@@ -1,35 +1,62 @@
 #include "testeo.h"
+#include <stdbool.h>
 #define EXITO 0
 #define ERROR_ARG 1
 #define ERROR_ARCH 2
 #define ERROR_MEM 3
 #define BMP_INVALIDO 4
-int procesarImagen(int num, char* arg[]){
-    facistolValidar(arg[1]);
-    facistolInfo(arg[1]);
 
-    printf("%d\n", num);
-    if(num > 2){
-        facistolTonalidadRoja(arg[1], atoi(arg[2]));
-        facistolTonalidadVerde(arg[1], atoi(arg[2]));
-        facistolTonalidadAzul(arg[1], atoi(arg[2]));
-        facistolAumentarContraste(arg[1], atoi(arg[2]));
-        facistolDisminuirContraste(arg[1], atoi(arg[2]));
-        facistolRecortar(arg[1], atoi(arg[2]));
-        //facistolConcatenarHorizontal(arg[1], arg[2]);
-        //facistolConcatenarVertical(arg[1], arg[2]);
-        facistolAchicar(arg[1], atoi(arg[2]));
-    }else{
-        facistolNegativo(arg[1]);
-        facistolCopiar(arg[1]);
-        facistolGris(arg[1]);
-        facistolRotacion90Izquierda(arg[1]);
-        facistolRotacion90Derecha(arg[1]);
-        facistolEspejarHorizontal(arg[1]);
-        facistolEspejarVertical(arg[1]);
-        facistolComodin(arg[1]);
+int procesarImagen(int num, char* arg[]){
+    
+    bool verbos=false;
+    bool *segundoverbos=false;
+    int archGenerados=0;
+    for(int i=0;i<num;i++)
+    {
+        if(strcmpi(arg[i],"--verbose")==0)
+        {
+            verbos=true;
+            i=num;
+        }
     }
-    printf("Hemos rotado\n");
+    if (verbos)
+    {
+        printf("[INFO] Iniciando bmpmanipuleitor...\n");
+        printf("[INFO] Argumentos detectados:\n");
+        for(int i=1;i<num;i++)
+        {
+            printf("%s\n",arg[i]);
+        }
+    }
+
+    
+
+    //facistolValidar(arg[1]);
+    //facistolInfo(arg[1]);
+
+    //printf("%d\n", num);
+    
+        // facistolTonalidadRoja(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        // facistolTonalidadVerde(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        // facistolTonalidadAzul(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        // facistolAumentarContraste(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        // facistolDisminuirContraste(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        //facistolRecortar(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        //facistolConcatenarHorizontal(arg[1], arg[2],verbos,segundoverbos);
+        //facistolConcatenarVertical(arg[1], arg[2],verbos,segundoverbos);
+        // facistolAchicar(arg[1], atoi(arg[2]),verbos,segundoverbos);
+        facistolNegativo(arg[1],verbos,segundoverbos);
+    
+        // facistolNegativo(arg[1],verbos,segundoverbos);
+        // facistolCopiar(arg[1]);
+        // facistolGris(arg[1],verbos,segundoverbos);
+        // facistolRotacion90Izquierda(arg[1],verbos,segundoverbos);
+        // facistolRotacion90Derecha(arg[1],verbos,segundoverbos);
+        // facistolEspejarHorizontal(arg[1],verbos,segundoverbos);
+        // facistolEspejarVertical(arg[1],verbos,segundoverbos);
+        // facistolComodin(arg[1],verbos,segundoverbos);
+    
+    printf("[INFO] Proceso finalizado - %d archivos generados\n",archGenerados);
     
 }
 
@@ -203,7 +230,22 @@ void facistolDestruirMatriz(void** m, int fil){
 }
 
 //jofrder
-int facistolNegativo(char* arg){
+int facistolNegativo(char* arg,bool verb,bool* segundoverb)
+{
+    bool propioverb=false;
+    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -220,21 +262,42 @@ int facistolNegativo(char* arg){
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** mat = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
     if(mat==NULL)
     {
         return ERROR_MEM;
     }
-    
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d píxeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, mat, p, padding);
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: negativo\n");
+    }   
+   
 
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
@@ -249,8 +312,20 @@ int facistolNegativo(char* arg){
         }
     }
 
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, mat, fo, padding);
-
+    
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Filtro negativo completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)mat, height);
     fclose(p);
     free(file);
@@ -259,7 +334,7 @@ int facistolNegativo(char* arg){
     return EXITO;
 }
 
-int facistolGris(char* arg){
+int facistolGris(char* arg,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -316,7 +391,7 @@ int facistolGris(char* arg){
     return EXITO;
 }
 
-int facistolRotacion90Izquierda(char* arg){
+int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -389,7 +464,7 @@ int facistolRotacion90Izquierda(char* arg){
     return EXITO;
 }
 
-int facistolRotacion90Derecha(char* arg){
+int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -463,7 +538,7 @@ int facistolRotacion90Derecha(char* arg){
 }
 //
 
-int facistolEspejarHorizontal(char* arg){
+int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -525,7 +600,7 @@ int facistolEspejarHorizontal(char* arg){
     return EXITO;
 }
 
-int facistolEspejarVertical(char* arg){
+int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -587,7 +662,7 @@ int facistolEspejarVertical(char* arg){
     return EXITO;
 }
 
-int facistolTonalidadRoja(char* arg, int porcentaje){
+int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -626,7 +701,7 @@ int facistolTonalidadRoja(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].red=facistolValorAumento(m[h][k].red, porcentaje);   //TONALIDAD ROJA
+            m[h][k].red=valorAumento(m[h][k].red, porcentaje);   //TONALIDAD ROJA
         }
     }
 
@@ -640,7 +715,7 @@ int facistolTonalidadRoja(char* arg, int porcentaje){
     return EXITO;
 }
 
-int facistolValorAumento(int pix, int porcentaje){
+int valorAumento(int pix, int porcentaje){
     float aumento = porcentaje/100.0;
     int nuevoValor = (int)(pix + (pix*aumento));
     if(nuevoValor > 255){
@@ -650,7 +725,7 @@ int facistolValorAumento(int pix, int porcentaje){
     }
 }
 
-int facistolTonalidadVerde(char* arg, int porcentaje){
+int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -689,7 +764,7 @@ int facistolTonalidadVerde(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].green=facistolValorAumento(m[h][k].green, porcentaje);   //TONALIDAD VERDE
+            m[h][k].green=valorAumento(m[h][k].green, porcentaje);   //TONALIDAD VERDE
         }
     }
 
@@ -704,7 +779,7 @@ int facistolTonalidadVerde(char* arg, int porcentaje){
 }
 
 
-int facistolTonalidadAzul(char* arg, int porcentaje){
+int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -743,7 +818,7 @@ int facistolTonalidadAzul(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].blue=facistolValorAumento(m[h][k].blue, porcentaje);   //TONALIDAD AZUL
+            m[h][k].blue=valorAumento(m[h][k].blue, porcentaje);   //TONALIDAD AZUL
         }
     }
 
@@ -758,7 +833,7 @@ int facistolTonalidadAzul(char* arg, int porcentaje){
 }
 //
 
-int facistolAumentarContraste(char* arg, int porcentaje){
+int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -797,9 +872,9 @@ int facistolAumentarContraste(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].red = facistolContraste(m[h][k].red, porcentaje);
-            m[h][k].blue = facistolContraste(m[h][k].blue, porcentaje);  //CONTRASTE AUMENTO
-            m[h][k].green = facistolContraste(m[h][k].green, porcentaje);   
+            m[h][k].red = contrastePositivo(m[h][k].red, porcentaje);
+            m[h][k].blue = contrastePositivo(m[h][k].blue, porcentaje);  //CONTRASTE AUMENTO
+            m[h][k].green = contrastePositivo(m[h][k].green, porcentaje);   
         }
     }
 
@@ -813,7 +888,7 @@ int facistolAumentarContraste(char* arg, int porcentaje){
     return EXITO;
 }
 
-int facistolContraste(int pix, int por)
+int contrastePositivo(int pix, int por)
 {
     float factor= 1.0 + ((float)por/100);
     float nuevoPixel = (pix - 128) * factor + 128;
@@ -827,7 +902,7 @@ int facistolContraste(int pix, int por)
     }
 }
 //
-int facistolRecortar(char* arg, int porcentaje){
+int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -858,13 +933,12 @@ int facistolRecortar(char* arg, int porcentaje){
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
-    double sqArea = sqrt((size * porcentaje)/ 100.0);
-    int newDimension = (int)sqArea;
-    int32_t newHeight = newDimension;
-    int32_t newWidth = newDimension;
+    
+    int32_t newHeight = (abs(info->height)*porcentaje)/100 ;
+    int32_t newWidth = (info->width*porcentaje)/100;
     int newPadding = (4 - (newWidth* 3) % 4) % 4;
 
-    info->image_size = (uint32_t)sqArea;
+    info->image_size = newHeight*newWidth;
     file->file_size = info->image_size + info->header_size;
     info->height = newHeight;
     info->width = newWidth;
@@ -882,7 +956,7 @@ int facistolRecortar(char* arg, int porcentaje){
     fclose(fo);
 }
 
-int facistolDisminuirContraste(char* arg, int porcentaje){
+int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -951,7 +1025,7 @@ int contrasteNegativo(int pix, int por)
     }
 }
 //
-int facistolConcatenarHorizontal(char* arg, char* arg2){
+int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundoverb){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -1101,7 +1175,7 @@ int facistolConcatenarHorizontal(char* arg, char* arg2){
     return EXITO;
 }
 
-int facistolConcatenarVertical(char* arg, char* arg2){
+int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb){
         FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -1258,7 +1332,7 @@ int facistolConcatenarVertical(char* arg, char* arg2){
     return EXITO;
 }
 //
-int facistolAchicar(char* arg, int porcentaje){
+int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(porcentaje < 1 || porcentaje > 100){
         printf("Porcentaje no valido\n");
         porcentaje = 100;  // Valor por defecto
@@ -1381,7 +1455,7 @@ Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, i
         return devolver;
     }
 
-int facistolComodin(char* arg){
+int facistolComodin(char* arg,bool verb,bool* segundoverb){
         FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
