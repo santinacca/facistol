@@ -9,7 +9,8 @@
 int procesarImagen(int num, char* arg[]){
     
     bool verbos=false;
-    bool *segundoverbos=false;
+    bool segunda_llamda = false;
+    bool *segundoverbos= &segunda_llamda;
     int archGenerados=0;
     for(int i=0;i<num;i++)
     {
@@ -236,9 +237,10 @@ int facistolNegativo(char* arg,bool verb,bool* segundoverb)
     
     if(*segundoverb==false)
     {
+        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-
+        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -284,7 +286,7 @@ int facistolNegativo(char* arg,bool verb,bool* segundoverb)
     }
     if(verb==true && propioverb==true)
     {
-        printf("[INFO] Memoria reservada exitosamente (%d píxeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
         printf("[INFO] Leyendo datos de imagen...\n");
     }
     fseek(p, file->offset_data, SEEK_SET);
@@ -1554,4 +1556,3 @@ void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, 
         }
     }
 }
-
