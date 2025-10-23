@@ -5,13 +5,51 @@
 #define ERROR_ARCH 2
 #define ERROR_MEM 3
 #define BMP_INVALIDO 4
-
-int procesarImagen(int num, char* arg[]){
-    
+#define MAXLETRAS 255
+int procesarImagen(int num, char* arg[])
+{
     bool verbos=false;
     bool segunda_llamda = false;
     bool *segundoverbos= &segunda_llamda;
-    int archGenerados=0;
+    int archGenerados=0,filtrosunicos=0,cantImg=0;
+    
+    char* imagen1=NULL;
+    char* imagen2=NULL;
+    char** argmain=(char**)facistolCrearMatriz(num,MAXLETRAS,sizeof(char*));
+
+    for(int i=0;i<num;i++)
+    {
+        argmain[i]=NULL;
+    }
+    for(int j=0;j<num;j++)
+    {
+        if(busquedaString(arg[j],argmain,filtrosunicos)==0)
+        {
+            argmain[filtrosunicos]=strdup(arg[j]);
+            filtrosunicos ++;
+        }
+    }
+    printf("Argumentos unicos: %d\n",filtrosunicos);
+    for(int k=0;k<filtrosunicos;k++)
+    {
+        printf("%s\n",argmain[k]);
+    }
+    for(int p = 1; p < filtrosunicos; p++){
+        if(strstr(argmain[p], ".bmp") != NULL){
+                //printf("---%s--\n", strstr(intento[p], ".bmp"));
+                printf("hay archivo.bmp\n");
+                printf("%s\n", argmain[p]);
+                if(imagen1 == NULL){
+                    imagen1 = argmain[p];
+                    cantImg++;
+                }else if(imagen2 == NULL){
+                    imagen2 = argmain[p];
+                    cantImg++;
+                }else{
+                    cantImg++;
+                }
+            }
+    }
     for(int i=0;i<num;i++)
     {
         if(strcmpi(arg[i],"--verbose")==0)
@@ -29,6 +67,155 @@ int procesarImagen(int num, char* arg[]){
             printf("%s\n",arg[i]);
         }
     }
+    
+    for(int n = 1; n < filtrosunicos;n++){
+       
+        if(strstr(argmain[n], "--info") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolInfo(imagen1);
+        }
+        if(strstr(argmain[n], "--validar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolValidar(imagen1);
+        }
+        if(strstr(argmain[n], "--aumentar-contraste") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                facistolAumentarContraste(imagen1,porcentaje,verbos,segundoverbos);
+            }
+            
+        }
+        if(strstr(argmain[n], "--reducir-contraste") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolDisminuirContraste(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--tonalidad-roja") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolTonalidadRoja(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--tonalidad-verde") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolTonalidadVerde(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--tonalidad-azul") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolTonalidadAzul(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--escala-de-grises") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolGris(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--rotar-izquierda") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolRotacion90Izquierda(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--rotar-derecha") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolRotacion90Derecha(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--espejar-horizontal") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolEspejarHorizontal(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--espejar-vertical") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolEspejarVertical(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--concatenar-horizontal") != NULL)
+        {
+            if(cantImg !=2){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolConcatenarHorizontal(imagen1,imagen2,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--concatenar-vertical") != NULL)
+        {
+            if(cantImg !=2){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolConcatenarVertical(imagen1,imagen2,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--recortar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolRecortar(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--achicar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            facistolAchicar(imagen1,porcentaje,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--help") != NULL)
+        {
+            facistolHelp();
+        }
+        if(strstr(argmain[n], "--negativo") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolNegativo(imagen1,verbos,segundoverbos);
+        }
+        if(strstr(argmain[n], "--comodin") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolComodin(imagen1,verbos,segundoverbos);
+        }
+    }
+
+
+
+    
 
     
 
@@ -46,7 +233,7 @@ int procesarImagen(int num, char* arg[]){
         //facistolConcatenarHorizontal(arg[1], arg[2],verbos,segundoverbos);
         //facistolConcatenarVertical(arg[1], arg[2],verbos,segundoverbos);
         // facistolAchicar(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        facistolNegativo(arg[1],verbos,segundoverbos);
+        //facistolNegativo(arg[1],verbos,segundoverbos);
     
         // facistolNegativo(arg[1],verbos,segundoverbos);
         // facistolCopiar(arg[1]);
@@ -57,8 +244,12 @@ int procesarImagen(int num, char* arg[]){
         // facistolEspejarVertical(arg[1],verbos,segundoverbos);
         // facistolComodin(arg[1],verbos,segundoverbos);
     
-    printf("[INFO] Proceso finalizado - %d archivos generados\n",archGenerados);
+    if(verbos)
+    {
+        printf("[INFO] Proceso finalizado - %d archivos generados\n",archGenerados);
+    }
     
+    facistolDestruirMatriz((void**)argmain,num);
 }
 
 int facistolInfo(char* arg){
@@ -147,7 +338,7 @@ void facistolHelp()
         printf("--espejar-horizontal <A la imagen se la espeja horizontalmente>\n");
         printf("--espejar-vertical <A la imagen se la espeja verticalmente>\n");
         printf("--concatenar-vertical <A la imagen se la concatena con otra imagen verticalmente>\n");
-        printf("--concatenar-vertical <A la imagen se la concatena con otra imagen verticalmente>\n");
+        printf("--concatenar-horizontal <A la imagen se la concatena con otra imagen horizontalmente>\n");
         printf("--recortar=X <A la imagen se la recorta un X porciento>\n");
         printf("--achicar=X <A la imagen se la achica un X porciento>\n");       
 }
@@ -233,14 +424,16 @@ void facistolDestruirMatriz(void** m, int fil){
 //jofrder
 int facistolNegativo(char* arg,bool verb,bool* segundoverb)
 {
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
     bool propioverb=false;
     
     if(*segundoverb==false)
-    {
-        printf("Dentro del primer if negativoparte 1\n");
+    {       
         propioverb=true;
-        *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
+        *segundoverb=true;       
     }
     if(verb==true && propioverb==true)
     {
@@ -337,14 +530,15 @@ int facistolNegativo(char* arg,bool verb,bool* segundoverb)
 }
 
 int facistolGris(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -421,7 +615,7 @@ int facistolGris(char* arg,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro escala de grises completado exitosamente\n");
     }
@@ -438,14 +632,15 @@ int facistolGris(char* arg,bool verb,bool* segundoverb){
 }
 
 int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -537,7 +732,7 @@ int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
 
     readOrWriteMatrix(ESCRIBIR, is_top_down, newInfo.height, newInfo.width, newMat, fo, newPadding);
     
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro rotacion 90 grados a la izquierda completado exitosamente\n");
     }
@@ -555,14 +750,15 @@ int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
 }
 
 int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -654,7 +850,7 @@ int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
 
     readOrWriteMatrix(ESCRIBIR, is_top_down, newInfo.height, newInfo.width, newMat, fo, newPadding);
     
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro rotacion 90 grados a la derecha completado exitosamente\n");
     }
@@ -673,14 +869,15 @@ int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
 //
 
 int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -762,7 +959,7 @@ int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro espejar horizontal completado exitosamente\n");
     }
@@ -780,14 +977,15 @@ int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
 }
 
 int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;   
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -869,7 +1067,7 @@ int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro espejar vertical completado exitosamente\n");
     }
@@ -887,14 +1085,15 @@ int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
 }
 
 int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -968,7 +1167,7 @@ int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb)
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro tonalidad roja completado exitosamente\n");
     }
@@ -995,14 +1194,15 @@ int valorAumento(int pix, int porcentaje){
 }
 
 int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1075,7 +1275,7 @@ int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro tonalidad verde completado exitosamente\n");
     }
@@ -1093,14 +1293,15 @@ int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb
 
 
 int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;   
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1173,7 +1374,7 @@ int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb)
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro tonalidad azul completado exitosamente\n");
     }
@@ -1191,14 +1392,15 @@ int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb)
 //
 
 int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1274,7 +1476,7 @@ int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundov
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro aumentar contraste completado exitosamente\n");
     }
@@ -1305,14 +1507,17 @@ int contrastePositivo(int pix, int por)
 }
 //
 int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
+        
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
+        
     }
     if(verb==true && propioverb==true)
     {
@@ -1345,21 +1550,12 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-    
-    int32_t newHeight = (abs(info->height)*porcentaje)/100 ;
-    int32_t newWidth = (info->width*porcentaje)/100;
-    int newPadding = (4 - (newWidth* 3) % 4) % 4;
-
-    info->image_size = newHeight*newWidth;
-    file->file_size = info->image_size + info->header_size;
-    info->height = newHeight;
-    info->width = newWidth;
     if(verb==true && propioverb==true)
     {
         printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
         printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
     }
-    Pixel** m = (Pixel**)facistolCrearMatriz(abs(info->height), info->width, sizeof(Pixel));
+    Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
     if(m==NULL)
     {
         return ERROR_MEM;
@@ -1371,6 +1567,14 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
+    int32_t newHeight = (abs(info->height)*porcentaje)/100 ;
+    int32_t newWidth = (info->width*porcentaje)/100;
+    int newPadding = (4 - (newWidth* 3) % 4) % 4;
+
+    info->image_size = newHeight*newWidth;
+    file->file_size = info->image_size + info->header_size;
+    info->height = newHeight;
+    info->width = newWidth;
     if(verb==true && propioverb==true)
     {
         printf("[INFO] Datos cargados correctamente\n");
@@ -1387,7 +1591,7 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, newHeight, newWidth, m, fo, newPadding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro recortar completado exitosamente\n");
     }
@@ -1403,14 +1607,15 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
 }
 
 int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1485,7 +1690,7 @@ int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundo
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro disminuir contraste completado exitosamente\n");
     }
@@ -1516,14 +1721,15 @@ int contrasteNegativo(int pix, int por)
 }
 //
 int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1546,7 +1752,6 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
     strcat(newname, arg);
     strcat(newname, "_");
     strcat(newname, arg2);
-    printf("Nuevo nombre: %s\n", newname);
 
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
@@ -1662,7 +1867,7 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
         for(int h3 = abs(info2->height); h3 < newHeight; h3++){
             for(int w3 = info->width; w3 < newWidth; w3++){
                 newMat[h3][w3].blue = 0;
-                newMat[h3][w3].red = 0;
+                newMat[h3][w3].red = 255;
                 newMat[h3][w3].green = 0;
             }
         }
@@ -1670,7 +1875,7 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
         for(int h3 = abs(info->height); h3 < newHeight; h3++){
             for(int w3 = 0; w3 < info->width; w3++){
                 newMat[h3][w3].blue = 0;
-                newMat[h3][w3].red = 0;
+                newMat[h3][w3].red = 255;
                 newMat[h3][w3].green = 0;
             }
         }
@@ -1685,9 +1890,9 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
         printf("[INFO] Guardando resultado: %s\n",newname);    
     }
     readOrWriteMatrix(ESCRIBIR, newIs_top_down, newHeight, newWidth, newMat, fo, newPadding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
-        printf("[INFO] Filtro negativo completado exitosamente\n");
+        printf("[INFO] Filtro concatenar horizontal completado exitosamente\n");
     }
     if(verb)
     {
@@ -1709,14 +1914,15 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
 }
 
 int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;   
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -1739,7 +1945,6 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
     strcat(newname, arg);
     strcat(newname, "_");
     strcat(newname, arg2);
-    printf("Nuevo nombre: %s\n", newname);
 
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
@@ -1858,7 +2063,7 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
         {
             for(int w3 = info2->width; w3 < newWidth; w3++)
             {
-                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].blue = 255;
                 newMat[h3][w3].red = 0;
                 newMat[h3][w3].green = 0;
             }
@@ -1868,7 +2073,7 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
         {
             for(int w3 = info->width; w3 < newWidth; w3++)
             {
-                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].blue = 255;
                 newMat[h3][w3].red = 0;
                 newMat[h3][w3].green = 0;
             }
@@ -1886,7 +2091,7 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
         printf("[INFO] Guardando resultado: %s\n",newname);    
     }
     readOrWriteMatrix(ESCRIBIR, newIs_top_down, newHeight, newWidth, newMat, fo, newPadding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro concatenar vertical completado exitosamente\n");
     }
@@ -1910,14 +2115,15 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
 }
 //
 int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;    
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -2018,7 +2224,7 @@ int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, newheight, info->width, newMat, fo, newpadding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro achicar completado exitosamente\n");
     }
@@ -2074,14 +2280,15 @@ Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, i
     }
 
 int facistolComodin(char* arg,bool verb,bool* segundoverb){
-    bool propioverb=false;
-    
+    if(validarImagen(arg)==-1)
+    {
+        return ERROR_ARCH;
+    }
+    bool propioverb=false;   
     if(*segundoverb==false)
     {
-        printf("Dentro del primer if negativoparte 1\n");
         propioverb=true;
         *segundoverb=true;
-        printf("Dentro del segundo if negativo 2\n");
     }
     if(verb==true && propioverb==true)
     {
@@ -2172,7 +2379,7 @@ int facistolComodin(char* arg,bool verb,bool* segundoverb){
         printf("[INFO] Guardando resultado: %s\n",newName);    
     }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-    if(verb==true && propioverb==true)
+    if(verb)
     {
         printf("[INFO] Filtro comodin completado exitosamente\n");
     }
@@ -2217,4 +2424,80 @@ void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, 
             }
         }
     }
+}
+
+int busquedaString(char* arg, char** vector, int size){
+    // La función devuelve 0 si el argumento NO fue encontrado (es único).
+    // Devuelve 1 si el argumento YA fue encontrado (es repetido).
+
+    for(int i = 0; i < size; i++){ 
+        // Solo iteramos hasta el tamaño lógico 'size'
+
+        // strcasecmp es la versión estándar de C para strcmpi (comparación insensible a mayúsculas)
+        // Si strcasecmp no está disponible, use strcmpi si es una extensión de su compilador.
+        if(strcasecmp(arg, vector[i]) == 0){
+            return 1; // Encontrado (es repetido)
+        }
+    }
+    return 0; // No encontrado (es único)
+}
+
+int cortarString(char* arg){
+    
+    char* p = strstr(arg, "=");
+    if(p != NULL){
+        size_t length = strlen(arg);
+        if(strcmpi(p+1, "\0") == 0){
+            printf("Falta el valor del porcentaje\n");
+        }else{
+            char* sliced = (char*)malloc((length + 1)*sizeof(char));
+            strncpy(sliced, p+1, length);
+            sliced[length] = '\0';
+            int porcentaje = atoi(sliced);
+            if(porcentaje > 100 || porcentaje < 0){
+                printf("Error en el porcentaje, valor no valido\n");
+            }else{
+                return porcentaje;
+            }
+            free(sliced);
+        }
+
+    }else{
+        printf("Mal formato de argumento, falta el =\n");
+        int porcentaje=-1;
+        return porcentaje;
+    }
+    
+}
+
+int validarImagen(char* arg)
+{
+    FILE* p = fopen(arg, "rb");
+    BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
+    BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    facistolLeerHeader(p, file, info);
+    int valido=0;
+    if(file->file_type != 0x4D42)
+    {
+        printf("El archivo no es BMP\n");
+        valido=-1;
+        return valido;
+    }
+    if(info->bit_count !=24)
+    {
+        printf("El archivo no es de 24 bits\n");
+        valido=-1;
+        return valido;
+    }
+    if(info->compression != 0)
+    {
+        printf("El archivo es comprimido\n");
+        valido=-1;
+        return valido;
+    }
+    
+    fclose(p);
+    free(file);
+    free(info);
+    return EXITO;
 }

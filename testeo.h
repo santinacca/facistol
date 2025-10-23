@@ -70,6 +70,7 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb);
 int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb);
 Pixel calculoPromedio(Pixel** m, float por, int h, int w, int hold, int wold, int32_t height, int32_t width);
 void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, Pixel** mat, FILE* p, int padding);
-
-
+int busquedaString(char* arg,char** vector,int size);
+int cortarString(char* arg);
+int validarImagen(char* arg);
 #endif // TESTEO_H_INCLUDED
