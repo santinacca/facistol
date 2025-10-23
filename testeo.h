@@ -11,6 +11,13 @@
 
 #define ESCRIBIR 10
 #define LEER 20
+/*
+#define EXITO 0 
+#define ERROR_ARG 1
+#define ERROR_ARCH 2 
+#define ERROR_MEM 3 
+#define BMP_INVALIDO 4
+*/
 
 #pragma pack(push, 1)
 typedef struct {

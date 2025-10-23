@@ -69,7 +69,6 @@ int procesarImagen(int num, char* arg[])
     }
     
     for(int n = 1; n < filtrosunicos;n++){
-       
         if(strstr(argmain[n], "--info") != NULL)
         {
             if(cantImg !=1){
@@ -82,7 +81,11 @@ int procesarImagen(int num, char* arg[])
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolValidar(imagen1);
+            int devolucion;
+            devolucion = facistolValidar(imagen1);
+            if(devolucion != 0){
+                printf("La imagen enviada a la funcion validar no es un archivo BMP valido\n");
+            }
         }
         if(strstr(argmain[n], "--aumentar-contraste") != NULL)
         {
@@ -92,9 +95,20 @@ int procesarImagen(int num, char* arg[])
             int porcentaje=cortarString(argmain[n]);
             if(porcentaje!=-1)
             {
-                facistolAumentarContraste(imagen1,porcentaje,verbos,segundoverbos);
+                int devolucion;
+                devolucion = facistolAumentarContraste(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+                return ERROR_ARG;
             }
-            
         }
         if(strstr(argmain[n], "--reducir-contraste") != NULL)
         {
@@ -102,7 +116,22 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolDisminuirContraste(imagen1,porcentaje,verbos,segundoverbos);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolDisminuirContraste(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+                return ERROR_ARG;
+            }
         }
         if(strstr(argmain[n], "--tonalidad-roja") != NULL)
         {
@@ -110,7 +139,22 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolTonalidadRoja(imagen1,porcentaje,verbos,segundoverbos);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadRoja(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+                return ERROR_ARG;
+            }
         }
         if(strstr(argmain[n], "--tonalidad-verde") != NULL)
         {
@@ -118,7 +162,22 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolTonalidadVerde(imagen1,porcentaje,verbos,segundoverbos);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadVerde(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+                return ERROR_ARG;
+            }
         }
         if(strstr(argmain[n], "--tonalidad-azul") != NULL)
         {
@@ -126,56 +185,140 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolTonalidadAzul(imagen1,porcentaje,verbos,segundoverbos);
-        }
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadAzul(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+                return ERROR_ARG;
+        }}
         if(strstr(argmain[n], "--escala-de-grises") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolGris(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolGris(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--rotar-izquierda") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolRotacion90Izquierda(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolRotacion90Izquierda(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--rotar-derecha") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolRotacion90Derecha(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolRotacion90Derecha(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--espejar-horizontal") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolEspejarHorizontal(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolEspejarHorizontal(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--espejar-vertical") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolEspejarVertical(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolEspejarVertical(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--concatenar-horizontal") != NULL)
         {
             if(cantImg !=2){
-                printf("no pa tiene que venir 1 sola foton\n");
+                printf("no pa tienen que venir 2  fotones\n");
             }
-            facistolConcatenarHorizontal(imagen1,imagen2,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolConcatenarHorizontal(imagen1,imagen2,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--concatenar-vertical") != NULL)
         {
             if(cantImg !=2){
-                printf("no pa tiene que venir 1 sola foton\n");
+                printf("no pa tienen que venir 2  fotones\n");
             }
-            facistolConcatenarVertical(imagen1,imagen2,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolConcatenarVertical(imagen1,imagen2,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--recortar") != NULL)
         {
@@ -183,7 +326,22 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolRecortar(imagen1,porcentaje,verbos,segundoverbos);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolRecortar(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a tonalidad azul\n");
+                return ERROR_ARG;
+            }
         }
         if(strstr(argmain[n], "--achicar") != NULL)
         {
@@ -191,7 +349,22 @@ int procesarImagen(int num, char* arg[])
                 printf("no pa tiene que venir 1 sola foton\n");
             }
             int porcentaje=cortarString(argmain[n]);
-            facistolAchicar(imagen1,porcentaje,verbos,segundoverbos);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolAchicar(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                    return ERROR_ARCH;
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a tonalidad azul\n");
+                return ERROR_ARG;
+            }
         }
         if(strstr(argmain[n], "--help") != NULL)
         {
@@ -202,48 +375,36 @@ int procesarImagen(int num, char* arg[])
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolNegativo(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolNegativo(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
         if(strstr(argmain[n], "--comodin") != NULL)
         {
             if(cantImg !=1){
                 printf("no pa tiene que venir 1 sola foton\n");
             }
-            facistolComodin(imagen1,verbos,segundoverbos);
+            int devolucion;
+            devolucion = facistolComodin(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+                return BMP_INVALIDO;
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+                return ERROR_ARCH;
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
         }
     }
-
-
-
-    
-
-    
-
-    //facistolValidar(arg[1]);
-    //facistolInfo(arg[1]);
-
-    //printf("%d\n", num);
-    
-        // facistolTonalidadRoja(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        // facistolTonalidadVerde(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        // facistolTonalidadAzul(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        // facistolAumentarContraste(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        // facistolDisminuirContraste(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        //facistolRecortar(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        //facistolConcatenarHorizontal(arg[1], arg[2],verbos,segundoverbos);
-        //facistolConcatenarVertical(arg[1], arg[2],verbos,segundoverbos);
-        // facistolAchicar(arg[1], atoi(arg[2]),verbos,segundoverbos);
-        //facistolNegativo(arg[1],verbos,segundoverbos);
-    
-        // facistolNegativo(arg[1],verbos,segundoverbos);
-        // facistolCopiar(arg[1]);
-        // facistolGris(arg[1],verbos,segundoverbos);
-        // facistolRotacion90Izquierda(arg[1],verbos,segundoverbos);
-        // facistolRotacion90Derecha(arg[1],verbos,segundoverbos);
-        // facistolEspejarHorizontal(arg[1],verbos,segundoverbos);
-        // facistolEspejarVertical(arg[1],verbos,segundoverbos);
-        // facistolComodin(arg[1],verbos,segundoverbos);
-    
     if(verbos)
     {
         printf("[INFO] Proceso finalizado - %d archivos generados\n",archGenerados);
@@ -426,7 +587,7 @@ int facistolNegativo(char* arg,bool verb,bool* segundoverb)
 {
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;
     
@@ -532,7 +693,7 @@ int facistolNegativo(char* arg,bool verb,bool* segundoverb)
 int facistolGris(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -634,7 +795,7 @@ int facistolGris(char* arg,bool verb,bool* segundoverb){
 int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -752,7 +913,7 @@ int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
 int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -871,7 +1032,7 @@ int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
 int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -979,7 +1140,7 @@ int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
 int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;   
     if(*segundoverb==false)
@@ -1087,7 +1248,7 @@ int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
 int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1196,7 +1357,7 @@ int valorAumento(int pix, int porcentaje){
 int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1295,7 +1456,7 @@ int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb
 int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;   
     if(*segundoverb==false)
@@ -1394,7 +1555,7 @@ int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb)
 int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1509,7 +1670,7 @@ int contrastePositivo(int pix, int por)
 int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1609,7 +1770,7 @@ int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
 int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1723,7 +1884,7 @@ int contrasteNegativo(int pix, int por)
 int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -1916,7 +2077,7 @@ int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundove
 int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;   
     if(*segundoverb==false)
@@ -2117,7 +2278,7 @@ int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb
 int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;    
     if(*segundoverb==false)
@@ -2282,7 +2443,7 @@ Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, i
 int facistolComodin(char* arg,bool verb,bool* segundoverb){
     if(validarImagen(arg)==-1)
     {
-        return ERROR_ARCH;
+        return BMP_INVALIDO;
     }
     bool propioverb=false;   
     if(*segundoverb==false)
@@ -2427,19 +2588,13 @@ void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, 
 }
 
 int busquedaString(char* arg, char** vector, int size){
-    // La función devuelve 0 si el argumento NO fue encontrado (es único).
-    // Devuelve 1 si el argumento YA fue encontrado (es repetido).
 
     for(int i = 0; i < size; i++){ 
-        // Solo iteramos hasta el tamaño lógico 'size'
-
-        // strcasecmp es la versión estándar de C para strcmpi (comparación insensible a mayúsculas)
-        // Si strcasecmp no está disponible, use strcmpi si es una extensión de su compilador.
         if(strcasecmp(arg, vector[i]) == 0){
-            return 1; // Encontrado (es repetido)
+            return 1;
         }
     }
-    return 0; // No encontrado (es único)
+    return 0; 
 }
 
 int cortarString(char* arg){
