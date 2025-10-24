@@ -4,6 +4,6 @@
 
 int main(int argc, char *argv[])
 {
-    printf("finish\n");
+    // historico: printf("finish\n");
     return procesarImagen(argc, argv);
 }
