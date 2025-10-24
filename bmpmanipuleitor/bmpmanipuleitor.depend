@@ -1,0 +1,47 @@
+# depslib dependency file v1.0
+1761334253 source:c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_nacca.c
+	"funciones_nacca.h"
+
+1761332421 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_nacca.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	<inttypes.h>
+	<math.h>
+	<stdbool.h>
+
+1761333856 source:c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_grupo.c
+	"funciones_grupo.h"
+
+1761334725 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_grupo.h
+	"funciones_zambella.h"
+	"funciones_zambella.c"
+
+1761333856 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_zambella.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdint.h>
+	<inttypes.h>
+	<math.h>
+	<stdbool.h>
+	"funciones_nacca.c"
+
+1761335179 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_nacca.c
+	"funciones_nacca.h"
+
+1761335179 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_zambella.c
+	"funciones_zambella.h"
+
+1761333856 source:c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_zambella.c
+	"funciones_zambella.h"
+
+1761330202 source:c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\main.c
+	<stdio.h>
+	<stdlib.h>
+	"funciones_grupo.c"
+
+1761335179 c:\users\usuario\documents\trabajos\topicos de programacion\bmpmanipuleitor\funciones_grupo.c
+	"funciones_grupo.h"
+
