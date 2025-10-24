@@ -1,55 +1,410 @@
 #include "testeo.h"
+#include <stdbool.h>
+#define EXITO 0
+#define ERROR_ARG 1
+#define ERROR_ARCH 2
+#define ERROR_MEM 3
+#define BMP_INVALIDO 4
+#define MAXLETRAS 255
+int procesarImagen(int num, char* arg[])
+{
+    bool verbos=false;
+    bool segunda_llamda = false;
+    bool *segundoverbos= &segunda_llamda;
+    int archGenerados=0,filtrosunicos=0,cantImg=0;
+    
+    char* imagen1=NULL;
+    char* imagen2=NULL;
+    char** argmain=(char**)facistolCrearMatriz(num,MAXLETRAS,sizeof(char*));
 
-void procesarImagen(int num, char* arg[]){
-    facistolValidar(arg[1]);
-    facistolInfo(arg[1]);
-
-    printf("%d\n", num);
-    if(num > 2){
-        facistolTonalidadRoja(arg[1], atoi(arg[2]));
-        facistolTonalidadVerde(arg[1], atoi(arg[2]));
-        facistolTonalidadAzul(arg[1], atoi(arg[2]));
-        facistolAumentarContraste(arg[1], atoi(arg[2]));
-        facistolDisminuirContraste(arg[1], atoi(arg[2]));
-        facistolRecortar(arg[1], atoi(arg[2]));
-        //facistolConcatenarHorizontal(arg[1], arg[2]);
-        //facistolConcatenarVertical(arg[1], arg[2]);
-        facistolAchicar(arg[1], atoi(arg[2]));
-    }else{
-        facistolNegativo(arg[1]);
-        facistolCopiar(arg[1]);
-        facistolGris(arg[1]);
-        facistolRotacion90Izquierda(arg[1]);
-        facistolRotacion90Derecha(arg[1]);
-        facistolEspejarHorizontal(arg[1]);
-        facistolEspejarVertical(arg[1]);
-        facistolComodin(arg[1]);
+    for(int i=0;i<num;i++)
+    {
+        argmain[i]=NULL;
     }
-    printf("Hemos rotado\n");
+    for(int j=0;j<num;j++)
+    {
+        if(busquedaString(arg[j],argmain,filtrosunicos)==0)
+        {
+            argmain[filtrosunicos]=strdup(arg[j]);
+            filtrosunicos ++;
+        }
+    }
+    printf("Argumentos unicos: %d\n",filtrosunicos);
+    for(int k=0;k<filtrosunicos;k++)
+    {
+        printf("%s\n",argmain[k]);
+    }
+    for(int p = 1; p < filtrosunicos; p++){
+        if(strstr(argmain[p], ".bmp") != NULL){
+                //printf("---%s--\n", strstr(intento[p], ".bmp"));
+                printf("hay archivo.bmp\n");
+                printf("%s\n", argmain[p]);
+                if(imagen1 == NULL){
+                    imagen1 = argmain[p];
+                    cantImg++;
+                }else if(imagen2 == NULL){
+                    imagen2 = argmain[p];
+                    cantImg++;
+                }else{
+                    cantImg++;
+                }
+            }
+    }
+    for(int i=0;i<num;i++)
+    {
+        if(strcmpi(arg[i],"--verbose")==0)
+        {
+            verbos=true;
+            i=num;
+        }
+    }
+    if (verbos)
+    {
+        printf("[INFO] Iniciando bmpmanipuleitor...\n");
+        printf("[INFO] Argumentos detectados:\n");
+        for(int i=1;i<num;i++)
+        {
+            printf("%s\n",arg[i]);
+        }
+    }
+    
+    for(int n = 1; n < filtrosunicos;n++){
+        if(strstr(argmain[n], "--info") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            facistolInfo(imagen1);
+        }
+        if(strstr(argmain[n], "--validar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolValidar(imagen1);
+            if(devolucion != 0){
+                printf("La imagen enviada a la funcion %S no es un archivo BMP valido\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--aumentar-contraste") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolAumentarContraste(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--reducir-contraste") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolDisminuirContraste(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--tonalidad-roja") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadRoja(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--tonalidad-verde") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadVerde(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--tonalidad-azul") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolTonalidadAzul(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+        }}
+        if(strstr(argmain[n], "--escala-de-grises") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolGris(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--rotar-izquierda") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolRotacion90Izquierda(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--rotar-derecha") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolRotacion90Derecha(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--espejar-horizontal") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolEspejarHorizontal(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--espejar-vertical") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolEspejarVertical(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--concatenar-horizontal") != NULL)
+        {
+            if(cantImg !=2){
+                printf("no pa tienen que venir 2  fotones\n");
+            }
+            int devolucion;
+            devolucion = facistolConcatenarHorizontal(imagen1,imagen2,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--concatenar-vertical") != NULL)
+        {
+            if(cantImg !=2){
+                printf("no pa tienen que venir 2  fotones\n");
+            }
+            int devolucion;
+            devolucion = facistolConcatenarVertical(imagen1,imagen2,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--recortar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolRecortar(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--achicar") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int porcentaje=cortarString(argmain[n]);
+            if(porcentaje!=-1)
+            {
+                int devolucion;
+                devolucion = facistolAchicar(imagen1,porcentaje,verbos,segundoverbos);
+                if(devolucion == 2){
+                    printf("Error en el archivo pasado a %s\n", argmain[n]);
+                }else if(devolucion == 3){
+                    printf("Error de memoria en la funcion %s\n", argmain[n]);
+                }else if(devolucion == 4){
+                    printf("Error con el archivo pasado a %s\n", argmain[n]);
+                }
+            }else{
+                printf("Error en el argumento pasado a %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--help") != NULL)
+        {
+            facistolHelp();
+        }
+        if(strstr(argmain[n], "--negativo") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolNegativo(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+        if(strstr(argmain[n], "--comodin") != NULL)
+        {
+            if(cantImg !=1){
+                printf("no pa tiene que venir 1 sola foton\n");
+            }
+            int devolucion;
+            devolucion = facistolComodin(imagen1,verbos,segundoverbos);
+            if(devolucion == 4){
+                printf("Error con el archivo pasado a %s\n", argmain[n]);
+            }else if(devolucion == 2){
+                printf("Error al crear archivos en la funcion %s\n", argmain[n]);
+            }else if(devolucion == 3){
+                printf("Error de memoria en la funcion %s\n", argmain[n]);
+            }
+        }
+    }
+    if(verbos)
+    {
+        printf("[INFO] Proceso finalizado - %d archivos generados\n",archGenerados);
+    }
+    
+    facistolDestruirMatriz((void**)argmain,num);
+    return EXITO;
 }
 
-void facistolInfo(char* arg){
+int facistolInfo(char* arg){
     FILE* p = fopen(arg, "rb");
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
     facistolLeerHeader(p, file, info);
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
-    printf("Entroa info imagen\n");
+    printf("Archivo: %s\n",arg);
     printf("Tamanio de archivo: %" PRIu32 "\n", file->file_size);
     printf("Dimension de imagen: %" PRId32 "x %" PRId32"\n", info->width, info->height);
     printf("Profundida de color: %" PRIu16 "\n", info->bit_count);
     printf("Compresion: No comprimido\n");
     printf("Offset de datos: %" PRIu32"\n", file->offset_data);
-    printf("tamanio de la imgaen: %" PRIu32"\n", info->image_size);
+    printf("Tamanio de la imgaen: %" PRIu32"\n", info->image_size);
     fclose(p);
     free(file);
     free(info);
 }
 
-void facistolValidar(char* arg){
+int facistolValidar(char* arg){
     FILE* p = fopen(arg, "rb");
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
@@ -57,8 +412,9 @@ void facistolValidar(char* arg){
     printf("Validando %s\n", arg);
     printf("tipo de archivo: %" PRIu16 "\n", file->file_type);
     if(file->file_type != 0x4D42){
-        printf("tipo de archivo no valido\n");
+        printf("Tipo de archivo no valido\n");
         printf("ARCHIVO INVALIDO - No se puede procesar\n");
+        return BMP_INVALIDO;
         exit(1);
     }else{
         printf("Signature BMP valido\n");
@@ -71,7 +427,7 @@ void facistolValidar(char* arg){
         printf("Profundidad de 24 bits confirmada\n");
     }
     if(info->compression != 0){
-        printf("archivo comprimido\n");
+        printf("Archivo comprimido\n");
         printf("ARCHIVO INVALIDO - No se puede procesar\n");
         exit(1);
     }else{
@@ -81,12 +437,47 @@ void facistolValidar(char* arg){
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 //joder
+void facistolHelp()
+{
+        printf("BMPMANIPULEITOR - Manipulador de imágenes BMP 24 bits\n");
+        printf("GRUPO: FACISTOL\n");
+        printf("Integrantes:\n");
+        printf("1. 47170837 - NACCA, Santino\n");
+        printf("2. 45072269 - ZAMBELLA, Lautaro\n");
+        printf("Uso: bmpmanipuleitor.exe [OPCIONES]\n");
+        printf("EJEMPLOS:\n");
+        printf("bmpmanipuleitor.exe --negativo foto.bmp\n");
+        printf("bmpmanipuleitor.exe --info imagen.bmp --validar\n");
+        printf("bmpmanipuleitor.exe foto.bmp --verbose --escala-de-grises --aumentar-contraste=25\n");
+        printf("FILTROS:\n");
+        printf("--info <Se informan las cualidades de la imagen>\n");
+        printf("-validar- <Se valida la imagen>\n");
+        printf("--negativo <A la imagen se le aplica un filtro negativo>\n");
+        printf("--comodin <A la imagen se le aplica un filtro sepia>\n");
+        printf("--aumentar-contraste=X <A la imagen se le aumenta el contraste un X porciento>\n");
+        printf("--disminuir-contraste=X <A la imagen se le disminuye el contraste un X porciento>\n");
+        printf("--tonalidad-roja=X <A la imagen se le aplica un filtro de tonalidad roja un X porciento>\n");
+        printf("--tonalidad-azul=X <A la imagen se le aplica un filtro de tonalidad azul un X porciento>\n");
+        printf("--tonalidad-verde=X <A la imagen se le aplica un filtro de tonalidad verde un X porciento>\n");
+        printf("--escala-de-grises <A la imagen se le aplica un filtro gris>\n");
+        printf("--rotar-derecha <A la imagen se la rota a la derecha 90 grados>\n");
+        printf("--rotar-izquierda <A la imagen se la rota a la izquierda 90 grados>\n");
+        printf("--espejar-horizontal <A la imagen se la espeja horizontalmente>\n");
+        printf("--espejar-vertical <A la imagen se la espeja verticalmente>\n");
+        printf("--concatenar-vertical <A la imagen se la concatena con otra imagen verticalmente>\n");
+        printf("--concatenar-horizontal <A la imagen se la concatena con otra imagen horizontalmente>\n");
+        printf("--recortar=X <A la imagen se la recorta un X porciento>\n");
+        printf("--achicar=X <A la imagen se la achica un X porciento>\n");       
+}
+//
 int facistolCopiar(char* arg){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_copia_";
@@ -94,6 +485,7 @@ int facistolCopiar(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
@@ -127,8 +519,8 @@ int facistolCopiar(char* arg){
 // ostias
 int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info){
     if(file == NULL || info == NULL){
-        printf("error al asignar memoria\n");
-        return 3;
+        printf("Error al asignar memoria\n");
+        return ERROR_MEM;
     }
     fread(file, sizeof(BMPFileHeader), 1, p);
     fread(info, sizeof(BMPInfoHeader), 1, p);
@@ -137,7 +529,7 @@ int facistolLeerHeader(FILE* p, BMPFileHeader* file, BMPInfoHeader* info){
 void** facistolCrearMatriz(int fil, int col, size_t elem){
     void** m = malloc(fil*sizeof(void*));
     if(!m){
-        printf("error al crear matriz");
+        printf("Error al crear matriz");
         return NULL;
     }
     void** ult = m + (fil-1);
@@ -160,10 +552,29 @@ void facistolDestruirMatriz(void** m, int fil){
 }
 
 //jofrder
-void facistolNegativo(char* arg){
+int facistolNegativo(char* arg,bool verb,bool* segundoverb)
+{
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;
+    
+    if(*segundoverb==false)
+    {       
+        propioverb=true;
+        *segundoverb=true;       
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_negativo_";
@@ -171,20 +582,47 @@ void facistolNegativo(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** mat = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(mat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, mat, p, padding);
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: negativo\n");
+    }   
+   
 
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
@@ -199,19 +637,48 @@ void facistolNegativo(char* arg){
         }
     }
 
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, mat, fo, padding);
-
+    
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Filtro negativo completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)mat, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolGris(char* arg){
+int facistolGris(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_gris_";
@@ -219,21 +686,46 @@ void facistolGris(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: escala de grises\n");
+    }  
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -248,20 +740,47 @@ void facistolGris(char* arg){
             m[h][k].green=gris;
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro escala de grises completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    }
     facistolDestruirMatriz((void**)m, height);
     free(file);
     free(info);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolRotacion90Izquierda(char* arg){
+int facistolRotacion90Izquierda(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_90Grados_Izquierda_";
@@ -269,18 +788,27 @@ void facistolRotacion90Izquierda(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -290,13 +818,33 @@ void facistolRotacion90Izquierda(char* arg){
     newInfo.width = info->height;
     newInfo.height = info->width;
 
-
-    printf("antes de escribir el header\n");
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",newInfo.height,newInfo.width);
+    }
+    
     fwrite(&newFile, sizeof(BMPFileHeader), 1, fo);
     fwrite(&newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
     Pixel** newMat = (Pixel**)facistolCrearMatriz(info->width, height, sizeof(Pixel));
-    
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(newInfo.image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: rotar 90 grados a la izquierda\n");
+    }  
     for(int x=0;x<height;x++) 
     { 
         for(int y=0;y<info->width;y++) 
@@ -306,24 +854,51 @@ void facistolRotacion90Izquierda(char* arg){
         }
 
     }
-    printf("Despues de cambiar la matriz\n");
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     int newPadding = (4 - (newInfo.width * 3) % 4) % 4;
 
     readOrWriteMatrix(ESCRIBIR, is_top_down, newInfo.height, newInfo.width, newMat, fo, newPadding);
-    printf("Despues de escribir todo\n");
-
+    
+    if(verb)
+    {
+        printf("[INFO] Filtro rotacion 90 grados a la izquierda completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     facistolDestruirMatriz((void**)newMat, info->width);
     fclose(fo);
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 
-void facistolRotacion90Derecha(char* arg){
+int facistolRotacion90Derecha(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_90Grados_Derecha_";
@@ -331,10 +906,15 @@ void facistolRotacion90Derecha(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
@@ -343,6 +923,10 @@ void facistolRotacion90Derecha(char* arg){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -352,13 +936,33 @@ void facistolRotacion90Derecha(char* arg){
     newInfo.width = info->height;
     newInfo.height = info->width;
 
-
-    printf("antes de escribir el header\n");
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",newInfo.height,newInfo.width);
+    }
+    
     fwrite(&newFile, sizeof(BMPFileHeader), 1, fo);
     fwrite(&newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
     Pixel** newMat = (Pixel**)facistolCrearMatriz(info->width, height, sizeof(Pixel));
-    
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(newInfo.image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: rotacion 90 grados a la derecha\n");
+    }   
     for(int x=0;x<height;x++) 
     { 
         for(int y=0;y<info->width;y++) 
@@ -368,25 +972,52 @@ void facistolRotacion90Derecha(char* arg){
         }
 
     }
-    printf("Despues de cambiar la matriz\n");
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     int newPadding = (4 - (newInfo.width * 3) % 4) % 4;
 
     readOrWriteMatrix(ESCRIBIR, is_top_down, newInfo.height, newInfo.width, newMat, fo, newPadding);
-    printf("Despues de escribir todo\n");
-
+    
+    if(verb)
+    {
+        printf("[INFO] Filtro rotacion 90 grados a la derecha completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     facistolDestruirMatriz((void**)newMat, info->width);
     fclose(fo);
     fclose(p);
     free(file);
     free(info);
+    return EXITO;
 }
 //
 
-void facistolEspejarHorizontal(char* arg){
+int facistolEspejarHorizontal(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_espejado_horizontal_";
@@ -394,21 +1025,46 @@ void facistolEspejarHorizontal(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: espejar horizontal\n");
+    }   
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -416,6 +1072,7 @@ void facistolEspejarHorizontal(char* arg){
     if(vec == NULL){
         free(vec);
         printf("error al crear vec\n");
+        return ERROR_MEM;
         exit(1);
     }
 
@@ -427,21 +1084,48 @@ void facistolEspejarHorizontal(char* arg){
             m[k][h] = vec[k];
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro espejar horizontal completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     free(file);
     free(info);
     free(vec);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolEspejarVertical(char* arg){
+int facistolEspejarVertical(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;   
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_espejado_vertical_";
@@ -449,21 +1133,46 @@ void facistolEspejarVertical(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: espejar vertical\n");
+    }   
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -471,6 +1180,7 @@ void facistolEspejarVertical(char* arg){
     if(vec == NULL){
         free(vec);
         printf("error al crear vec\n");
+        return ERROR_MEM;
         exit(1);
     }
 
@@ -482,21 +1192,49 @@ void facistolEspejarVertical(char* arg){
             m[h][k] = vec[k];
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro espejar vertical completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     free(file);
     free(info);
     free(vec);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolTonalidadRoja(char* arg, int porcentaje){
+int facistolTonalidadRoja(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_roja";
@@ -504,21 +1242,46 @@ void facistolTonalidadRoja(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: tonalidad roja\n");
+    }   
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -526,20 +1289,31 @@ void facistolTonalidadRoja(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].red=facistolValorAumento(m[h][k].red, porcentaje);   //TONALIDAD ROJA
+            m[h][k].red=valorAumento(m[h][k].red, porcentaje);   //TONALIDAD ROJA
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro tonalidad roja completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
-int facistolValorAumento(int pix, int porcentaje){
+int valorAumento(int pix, int porcentaje){
     float aumento = porcentaje/100.0;
     int nuevoValor = (int)(pix + (pix*aumento));
     if(nuevoValor > 255){
@@ -549,10 +1323,26 @@ int facistolValorAumento(int pix, int porcentaje){
     }
 }
 
-void facistolTonalidadVerde(char* arg, int porcentaje){
+int facistolTonalidadVerde(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_verde";
@@ -560,21 +1350,46 @@ void facistolTonalidadVerde(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: tonalidad verde\n");
+    }  
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -582,24 +1397,51 @@ void facistolTonalidadVerde(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].green=facistolValorAumento(m[h][k].green, porcentaje);   //TONALIDAD VERDE
+            m[h][k].green=valorAumento(m[h][k].green, porcentaje);   //TONALIDAD VERDE
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro tonalidad verde completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 
-void facistolTonalidadAzul(char* arg, int porcentaje){
+int facistolTonalidadAzul(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;   
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_tonalidad_azul";
@@ -607,21 +1449,46 @@ void facistolTonalidadAzul(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: tonalidad azul\n");
+    } 
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -629,24 +1496,52 @@ void facistolTonalidadAzul(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].blue=facistolValorAumento(m[h][k].blue, porcentaje);   //TONALIDAD AZUL
+            m[h][k].blue=valorAumento(m[h][k].blue, porcentaje);   //TONALIDAD AZUL
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro tonalidad azul completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 //
 
-void facistolAumentarContraste(char* arg, int porcentaje){
+int facistolAumentarContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_aumentar_contraste_";
@@ -654,21 +1549,46 @@ void facistolAumentarContraste(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: aumentar contraste\n");
+    } 
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -676,22 +1596,33 @@ void facistolAumentarContraste(char* arg, int porcentaje){
     for(int h=0;h<height;h++)
     {
         for(int k=0;k<info->width;k++){
-            m[h][k].red = facistolContraste(m[h][k].red, porcentaje);
-            m[h][k].blue = facistolContraste(m[h][k].blue, porcentaje);  //CONTRASTE AUMENTO
-            m[h][k].green = facistolContraste(m[h][k].green, porcentaje);   
+            m[h][k].red = contrastePositivo(m[h][k].red, porcentaje);
+            m[h][k].blue = contrastePositivo(m[h][k].blue, porcentaje);  //CONTRASTE AUMENTO
+            m[h][k].green = contrastePositivo(m[h][k].green, porcentaje);   
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro aumentar contraste completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
-int facistolContraste(int pix, int por)
+int contrastePositivo(int pix, int por)
 {
     float factor= 1.0 + ((float)por/100);
     float nuevoPixel = (pix - 128) * factor + 128;
@@ -705,10 +1636,28 @@ int facistolContraste(int pix, int por)
     }
 }
 //
-void facistolRecortar(char* arg, int porcentaje){
+int facistolRecortar(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        
+        propioverb=true;
+        *segundoverb=true;
+        
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_recortado_";
@@ -716,37 +1665,70 @@ void facistolRecortar(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
-    double sqArea = sqrt((size * porcentaje)/ 100.0);
-    int newDimension = (int)sqArea;
-    int32_t newHeight = newDimension;
-    int32_t newWidth = newDimension;
+    int32_t newHeight = (abs(info->height)*porcentaje)/100 ;
+    int32_t newWidth = (info->width*porcentaje)/100;
     int newPadding = (4 - (newWidth* 3) % 4) % 4;
 
-    info->image_size = (uint32_t)sqArea;
+    info->image_size = newHeight*newWidth;
     file->file_size = info->image_size + info->header_size;
     info->height = newHeight;
     info->width = newWidth;
-
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: recortar\n");
+    }     
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, newHeight, newWidth, m, fo, newPadding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro recortar completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
@@ -754,10 +1736,26 @@ void facistolRecortar(char* arg, int porcentaje){
     fclose(fo);
 }
 
-void facistolDisminuirContraste(char* arg, int porcentaje){
+int facistolDisminuirContraste(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_disminuir_contraste_";
@@ -765,21 +1763,46 @@ void facistolDisminuirContraste(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: disminuir contraste\n");
+    }
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
@@ -792,14 +1815,25 @@ void facistolDisminuirContraste(char* arg, int porcentaje){
             m[h][k].green = contrasteNegativo(m[h][k].green, porcentaje);   
         }
     }
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro disminuir contraste completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 int contrasteNegativo(int pix, int por)
@@ -816,30 +1850,51 @@ int contrasteNegativo(int pix, int por)
     }
 }
 //
-void facistolConcatenarHorizontal(char* arg, char* arg2){
+int facistolConcatenarHorizontal(char* arg, char* arg2,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     FILE* p2 = fopen(arg2, "rb");
     if(p2 == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newname[255] = "facistol_concatenacion_horizontal_";
     strcat(newname, arg);
     strcat(newname, "_");
     strcat(newname, arg2);
-    printf("Nuevo nombre: %s\n", newname);
 
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
 
     int32_t height = abs(info->height);
@@ -885,21 +1940,48 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
 
     newInfo->image_size = (uint32_t)newSize;
     newFile->file_size = newInfo->image_size + newInfo->header_size;
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",newWidth,newHeight);
+    }
     fwrite(newFile, sizeof(BMPFileHeader), 1, fo);
     fwrite(newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, newFile->offset_data, SEEK_SET);
 
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newHeight, newWidth, sizeof(Pixel));
-
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(newInfo->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(abs(info->height), info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, abs(info->height), info->width, m, p, padding);
 
     Pixel** m2 = (Pixel**)facistolCrearMatriz(abs(info2->height), info2->width, sizeof(Pixel));
+    if(m2==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p2, file2->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down2, abs(info2->height), info2->width, m2, p2, padding2);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: concatenar horizontal\n");
+    }  
     for(int w = 0; w < info->width; w++){
         for(int h = 0; h < abs(info->height); h++){
             newMat[h][w] = m[h][w];
@@ -915,7 +1997,7 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
         for(int h3 = abs(info2->height); h3 < newHeight; h3++){
             for(int w3 = info->width; w3 < newWidth; w3++){
                 newMat[h3][w3].blue = 0;
-                newMat[h3][w3].red = 0;
+                newMat[h3][w3].red = 255;
                 newMat[h3][w3].green = 0;
             }
         }
@@ -923,7 +2005,7 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
         for(int h3 = abs(info->height); h3 < newHeight; h3++){
             for(int w3 = 0; w3 < info->width; w3++){
                 newMat[h3][w3].blue = 0;
-                newMat[h3][w3].red = 0;
+                newMat[h3][w3].red = 255;
                 newMat[h3][w3].green = 0;
             }
         }
@@ -933,9 +2015,19 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
                 }
             }
     }
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newname);    
+    }
     readOrWriteMatrix(ESCRIBIR, newIs_top_down, newHeight, newWidth, newMat, fo, newPadding);
-
-    printf("Escribimos en el archivo\n");
+    if(verb)
+    {
+        printf("[INFO] Filtro concatenar horizontal completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)newMat, newHeight);
     facistolDestruirMatriz((void**)m, abs(info->height));
     facistolDestruirMatriz((void**)m2, abs(info2->height));
@@ -948,32 +2040,54 @@ void facistolConcatenarHorizontal(char* arg, char* arg2){
     free(file2);
     free(info2);
     fclose(fo);
+    return EXITO;
 }
 
-void facistolConcatenarVertical(char* arg, char* arg2){
-        FILE* p = fopen(arg, "rb");
+int facistolConcatenarVertical(char* arg, char* arg2,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;   
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     FILE* p2 = fopen(arg2, "rb");
     if(p2 == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newname[255] = "facistol_concatenacion_vertical_";
     strcat(newname, arg);
     strcat(newname, "_");
     strcat(newname, arg2);
-    printf("Nuevo nombre: %s\n", newname);
 
     FILE* fo = fopen(newname, "wb");
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
 
     int32_t height = abs(info->height);
@@ -1019,21 +2133,48 @@ void facistolConcatenarVertical(char* arg, char* arg2){
 
     newInfo->image_size = (uint32_t)newSize;
     newFile->file_size = newInfo->image_size + newInfo->header_size;
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",newWidth,newHeight);
+    }
     fwrite(newFile, sizeof(BMPFileHeader), 1, fo);
     fwrite(newInfo, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, newFile->offset_data, SEEK_SET);
 
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newHeight, newWidth, sizeof(Pixel));
-
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(newInfo->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(abs(info->height), info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, abs(info->height), info->width, m, p, padding);
 
     Pixel** m2 = (Pixel**)facistolCrearMatriz(abs(info2->height), info2->width, sizeof(Pixel));
+    if(m2==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p2, file2->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down2, abs(info2->height), info2->width, m2, p2, padding2);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: concatenar vertical\n");
+    }  
     for(int w = 0; w < info->width; w++){
         for(int h = 0; h < abs(info->height); h++){
             newMat[h][w] = m[h][w];
@@ -1052,7 +2193,7 @@ void facistolConcatenarVertical(char* arg, char* arg2){
         {
             for(int w3 = info2->width; w3 < newWidth; w3++)
             {
-                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].blue = 255;
                 newMat[h3][w3].red = 0;
                 newMat[h3][w3].green = 0;
             }
@@ -1062,7 +2203,7 @@ void facistolConcatenarVertical(char* arg, char* arg2){
         {
             for(int w3 = info->width; w3 < newWidth; w3++)
             {
-                newMat[h3][w3].blue = 0;
+                newMat[h3][w3].blue = 255;
                 newMat[h3][w3].red = 0;
                 newMat[h3][w3].green = 0;
             }
@@ -1075,8 +2216,19 @@ void facistolConcatenarVertical(char* arg, char* arg2){
             }
         }
     }
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newname);    
+    }
     readOrWriteMatrix(ESCRIBIR, newIs_top_down, newHeight, newWidth, newMat, fo, newPadding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro concatenar vertical completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)newMat, newHeight);
     facistolDestruirMatriz((void**)m, abs(info->height));
     facistolDestruirMatriz((void**)m2, abs(info2->height));
@@ -1089,9 +2241,25 @@ void facistolConcatenarVertical(char* arg, char* arg2){
     free(file2);
     free(info2);
     fclose(fo);
+    return EXITO;
 }
 //
-void facistolAchicar(char* arg, int porcentaje){
+int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;    
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
     if(porcentaje < 1 || porcentaje > 100){
         printf("Porcentaje no valido\n");
         porcentaje = 100;  // Valor por defecto
@@ -1100,6 +2268,7 @@ void facistolAchicar(char* arg, int porcentaje){
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "achicado_";
@@ -1107,10 +2276,15 @@ void facistolAchicar(char* arg, int porcentaje){
     FILE* fo = fopen(newName, "wb");  // Modo binario
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
@@ -1119,6 +2293,10 @@ void facistolAchicar(char* arg, int porcentaje){
     int size = abs(info->height) * (info->width);
 
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
 
@@ -1128,22 +2306,39 @@ void facistolAchicar(char* arg, int porcentaje){
 
     int32_t newheight = (int32_t)(origenH / factor);  // Altura nueva
     int32_t newwidth = (int32_t)(origenW / factor);   // Ancho nuevo
-
+    int newpadding = (4 - (newwidth * 3) % 4) % 4;
+    uint32_t imageSizeNew = (uint32_t)(newheight * (newwidth * 3 + newpadding));
+    uint32_t fileSizeNew = file->offset_data + imageSizeNew;
+    file->file_size = fileSizeNew;
+    info->image_size = imageSizeNew;
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",newwidth,newheight);
+    }
     Pixel** newMat = (Pixel**)facistolCrearMatriz(newheight, newwidth, sizeof(Pixel));
-
+    if(newMat==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: achicar\n");
+    } 
     for(int h = 0; h < newheight; h++){
         for(int w = 0; w < newwidth; w++){
             newMat[h][w] = calculoPromedio(m, factor, h, w, origenH, origenW, newheight, newwidth);  // Pasa factor correcto
         }
     }
-
-    int newpadding = (4 - (newwidth * 3) % 4) % 4;
-    uint32_t imageSizeNew = (uint32_t)(newheight * (newwidth * 3 + newpadding));
-    uint32_t fileSizeNew = file->offset_data + imageSizeNew;
-
-    file->file_size = fileSizeNew;
-    info->image_size = imageSizeNew;
-
     if(is_top_down){
         info->height = 0 - newheight;  // Mantener el signo
     }else{
@@ -1154,15 +2349,26 @@ void facistolAchicar(char* arg, int porcentaje){
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
-
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, newheight, info->width, newMat, fo, newpadding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro achicar completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    } 
     facistolDestruirMatriz((void**)m, height);
     facistolDestruirMatriz((void**)newMat, newheight);
     fclose(p);
     free(file);
     free(info);
     fclose(fo);
+    return EXITO;
 }
 
 
@@ -1203,10 +2409,26 @@ Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, i
         return devolver;
     }
 
-void facistolComodin(char* arg){
-        FILE* p = fopen(arg, "rb");
+int facistolComodin(char* arg,bool verb,bool* segundoverb){
+    if(validarImagen(arg)==-1)
+    {
+        return BMP_INVALIDO;
+    }
+    bool propioverb=false;   
+    if(*segundoverb==false)
+    {
+        propioverb=true;
+        *segundoverb=true;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Cargando archivo: %s\n",arg);
+
+    }
+    FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     char newName[255] = "facistol_comodin_";
@@ -1214,55 +2436,93 @@ void facistolComodin(char* arg){
     FILE* fo = fopen(newName, "wb"); // IMPORTANT
     if (fo == NULL){
         printf("error al abrir el nuevo archivo\n");
+        return ERROR_ARCH;
         exit(1);
     }
     BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
     BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Validando header BMP...\n");
+    }
     facistolLeerHeader(p, file, info);
     
     int32_t height = abs(info->height);
     int is_top_down = (info->height < 0);
     int padding = (4 - (info->width * 3) % 4) % 4;
     int size = abs(info->height) * (info->width);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Archivo válido - Dimensiones: %"PRId32"x%"PRIu32", Tamanio: %d bytes\n",info->width,info->height,size);
+        printf("[INFO] Reservando memoria para matriz %"PRId32"x%"PRIu32"\n",info->width,info->height);
+    }
     Pixel** m = (Pixel**)facistolCrearMatriz(height, info->width, sizeof(Pixel));
+    if(m==NULL)
+    {
+        return ERROR_MEM;
+    }
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Memoria reservada exitosamente (%d pixeles)\n",(int)(info->image_size/3));
+        printf("[INFO] Leyendo datos de imagen...\n");
+    }
     fseek(p, file->offset_data, SEEK_SET);
     readOrWriteMatrix(LEER, is_top_down, height, info->width, m, p, padding);
-
+    if(verb==true && propioverb==true)
+    {
+        printf("[INFO] Datos cargados correctamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Aplicando filtro: comodin\n");
+    }
     fwrite(file, sizeof(BMPFileHeader), 1, fo);
     fwrite(info, sizeof(BMPInfoHeader), 1, fo);
     fseek(fo, file->offset_data, SEEK_SET);
     for(int h=0;h<height;h++)
+    {
+        for(int k=0;k<info->width;k++)
         {
-            for(int k=0;k<info->width;k++){
-                int red = m[h][k].red;
-                int green = m[h][k].green;
-                int blue = m[h][k].blue;
+            int red = m[h][k].red;
+            int green = m[h][k].green;
+            int blue = m[h][k].blue;
 
-                // Realiza los cálculos usando las variables temporales
-                int new_blue = round(.272 * red + .534 * green + .131 * blue);
-                int new_red = round(.393 * red + .769 * green + .189 * blue);  
-                int new_green = round(.349 * red + .686 * green + .168 * blue);
+            // Realiza los cálculos usando las variables temporales
+            int new_blue = round(.272 * red + .534 * green + .131 * blue);
+            int new_red = round(.393 * red + .769 * green + .189 * blue);  
+            int new_green = round(.349 * red + .686 * green + .168 * blue);
 
-                // Aplica el límite de 255 a los nuevos valores
-                if (new_red > 255) new_red = 255;
-                if (new_green > 255) new_green = 255;
-                if (new_blue > 255) new_blue = 255;
+            // Aplica el límite de 255 a los nuevos valores
+            if (new_red > 255) new_red = 255;
+            if (new_green > 255) new_green = 255;
+            if (new_blue > 255) new_blue = 255;
 
-                // Asigna los nuevos valores al píxel de la imagen
-                m[h][k].red = new_red;
-                m[h][k].green = new_green;
-                m[h][k].blue = new_blue;
-            }
+            // Asigna los nuevos valores al píxel de la imagen
+            m[h][k].red = new_red;
+            m[h][k].green = new_green;
+            m[h][k].blue = new_blue;
         }
-
+    }
+    
+    if(verb)
+    {
+        printf("[INFO] Guardando resultado: %s\n",newName);    
+    }
     readOrWriteMatrix(ESCRIBIR, is_top_down, height, info->width, m, fo, padding);
-
+    if(verb)
+    {
+        printf("[INFO] Filtro comodin completado exitosamente\n");
+    }
+    if(verb)
+    {
+        printf("[INFO] Liberando memoria...\n"); 
+    }
     facistolDestruirMatriz((void**)m, height);
     free(file);
     free(info);
     fclose(p);
     fclose(fo);
+    return EXITO;
 }
 
 void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, Pixel** mat, FILE* p, int padding){
@@ -1294,4 +2554,74 @@ void readOrWriteMatrix(int esc, int is_top_down, int32_t height, int32_t width, 
             }
         }
     }
+}
+
+int busquedaString(char* arg, char** vector, int size){
+
+    for(int i = 0; i < size; i++){ 
+        if(strcasecmp(arg, vector[i]) == 0){
+            return 1;
+        }
+    }
+    return 0; 
+}
+
+int cortarString(char* arg){
+    
+    char* p = strstr(arg, "=");
+    if(p != NULL){
+        size_t length = strlen(arg);
+        if(strcmpi(p+1, "\0") == 0){
+            printf("Falta el valor del porcentaje\n");
+        }else{
+            char* sliced = (char*)malloc((length + 1)*sizeof(char));
+            strncpy(sliced, p+1, length);
+            sliced[length] = '\0';
+            int porcentaje = atoi(sliced);
+            if(porcentaje > 100 || porcentaje < 0){
+                printf("Error en el porcentaje, valor no valido\n");
+            }else{
+                return porcentaje;
+            }
+            free(sliced);
+        }
+
+    }else{
+        printf("Mal formato de argumento, falta el =\n");
+        int porcentaje=-1;
+        return porcentaje;
+    }
+    
+}
+
+int validarImagen(char* arg)
+{
+    FILE* p = fopen(arg, "rb");
+    BMPFileHeader* file = malloc(sizeof(BMPFileHeader));
+    BMPInfoHeader* info = malloc(sizeof(BMPInfoHeader));
+    facistolLeerHeader(p, file, info);
+    int valido=0;
+    if(file->file_type != 0x4D42)
+    {
+        printf("El archivo no es BMP\n");
+        valido=-1;
+        return valido;
+    }
+    if(info->bit_count !=24)
+    {
+        printf("El archivo no es de 24 bits\n");
+        valido=-1;
+        return valido;
+    }
+    if(info->compression != 0)
+    {
+        printf("El archivo es comprimido\n");
+        valido=-1;
+        return valido;
+    }
+    
+    fclose(p);
+    free(file);
+    free(info);
+    return EXITO;
 }
