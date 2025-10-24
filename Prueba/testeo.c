@@ -2262,9 +2262,9 @@ int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     }
     if(porcentaje < 1 || porcentaje > 100){
         printf("Porcentaje no valido\n");
-        porcentaje = 100;  // Valor por defecto
+        porcentaje = 100;
     }
-    float factor = (100.0 / (float)porcentaje);  // Factor de escalado
+    float factor = (100.0 / (float)porcentaje);
     FILE* p = fopen(arg, "rb");
     if(p == NULL){
         printf("error al abrir el archivo\n");
@@ -2334,13 +2334,13 @@ int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
     {
         printf("[INFO] Aplicando filtro: achicar\n");
     } 
-    for(int h = 0; h < newheight; h++){
-        for(int w = 0; w < newwidth; w++){
-            newMat[h][w] = calculoPromedio(m, factor, h, w, origenH, origenW, newheight, newwidth);  // Pasa factor correcto
+    for(int indexH = 0; indexH < newheight; indexH++){
+        for(int indexW = 0; indexW < newwidth; indexW++){
+            newMat[indexH][indexW] = calculoPromedio(m, factor, indexH, indexW, origenH, origenW, newheight, newwidth);
         }
     }
     if(is_top_down){
-        info->height = 0 - newheight;  // Mantener el signo
+        info->height = 0 - newheight;
     }else{
         info->height = newheight;
     }
@@ -2372,22 +2372,26 @@ int facistolAchicar(char* arg, int porcentaje,bool verb,bool* segundoverb){
 }
 
 
-Pixel calculoPromedio(Pixel** mat, float factor, int newH, int newW, int oldH, int oldW, int32_t height, int32_t width) {
-        // Compute source position with scaling (center of new pixel maps to source)
-        float srcH = (newH + 0.5f) * (oldH / (float)height);  // height is new height, but pass it or compute
-        float srcW = (newW + 0.5f) * (oldW / (float)width);   // width is new width
-        // For averaging, compute a small block around srcH/srcW (e.g., 2x2 nearest)
-        int startH = (int)srcH;  // Clamp to bounds
-        int startW = (int)srcW;
-        int endH = (int)(srcH + 1.0f);
-        int endW = (int)(srcW + 1.0f);
-        if (startH < 0) startH = 0;
-        if (startW < 0) startW = 0;
-        if (endH >= oldH) endH = oldH;
-
-        if (endW >= oldW) endW = oldW;
+Pixel calculoPromedio(Pixel** mat, float factor, int indexH, int indexW, int originalH, int originalW, int32_t newheight, int32_t newwidth) {
         int acuRed = 0, acuGreen = 0, acuBlue = 0;
         int cantPixeles = 0;
+        int startH = (int)((indexH + 0.5) * (originalH / (float)newheight));
+        int startW = (int)((indexW + 0.5) * (originalW / (float)newwidth));
+        int endH = (int)((indexH + 0.5) * (originalH / (float)newheight) + 1.0);
+        int endW = (int)((indexW + 0.5) * (originalW / (float)newwidth) + 1.0);
+        if (startH < 0){
+            startH = 0;
+        } 
+        if (startW < 0){
+            startW = 0;
+        } 
+        if (endH >= originalH){
+            endH = originalH;
+        } 
+
+        if (endW >= originalW){
+            endW = originalW;
+        }
         for (int i = startH; i < endH; i++) {
             for (int j = startW; j < endW; j++) {
                 acuRed += mat[i][j].red;
@@ -2573,6 +2577,7 @@ int cortarString(char* arg){
         size_t length = strlen(arg);
         if(strcmpi(p+1, "\0") == 0){
             printf("Falta el valor del porcentaje\n");
+            return -1;
         }else{
             char* sliced = (char*)malloc((length + 1)*sizeof(char));
             strncpy(sliced, p+1, length);
